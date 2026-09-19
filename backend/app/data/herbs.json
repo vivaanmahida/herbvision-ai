@@ -1,0 +1,1122 @@
+[
+  {
+    "id": 1,
+    "name": "Tulsi",
+    "common_name": "Holy Basil",
+    "scientific_name": "Ocimum tenuiflorum",
+    "sanskrit_name": "Tulasi",
+    "hindi_name": "Tulsi",
+    "gujarati_name": "Tulasi",
+    "botanical_family": "Lamiaceae",
+    "description": "Tulsi, or Holy Basil, is one of the most sacred plants in Hindu tradition and a cornerstone of Ayurvedic medicine. It is an aromatic shrub with green or purple leaves and small flowers. Known as the 'Queen of Herbs,' Tulsi has been revered for over 3,000 years for its remarkable healing properties.",
+    "traditional_uses": [
+      "Respiratory support \u2013 relieves cough, cold, bronchitis, and asthma",
+      "Adaptogen \u2013 helps the body cope with stress",
+      "Immune booster \u2013 stimulates immune response",
+      "Anti-inflammatory and antipyretic (fever reducer)",
+      "Digestive aid \u2013 relieves bloating and indigestion",
+      "Antimicrobial \u2013 effective against bacteria, fungi, and viruses",
+      "Oral health \u2013 used in toothpastes and mouthwashes"
+    ],
+    "plant_parts_used": [
+      "Leaves",
+      "Seeds",
+      "Roots",
+      "Stem"
+    ],
+    "dosha": {
+      "balances": [
+        "Vata",
+        "Kapha"
+      ],
+      "may_aggravate": [
+        "Pitta (in excess)"
+      ],
+      "rasa": "Tikta (bitter), Katu (pungent)",
+      "virya": "Ushna (hot potency)",
+      "vipaka": "Katu (pungent post-digestive)"
+    },
+    "cultivation": {
+      "climate": "Tropical and subtropical; thrives in warm, humid conditions",
+      "soil": "Well-drained, fertile loamy soil with pH 6\u20137.5",
+      "watering": "Moderate; avoid waterlogging",
+      "sunlight": "Full sun (6\u20138 hours daily)",
+      "propagation": "Seeds or stem cuttings",
+      "harvesting": "Leaves can be harvested 6\u20138 weeks after planting"
+    },
+    "habitat": "Native to the Indian subcontinent; widely cultivated in tropical Asia",
+    "safety_notes": "Generally safe for most adults. Pregnant women should avoid large medicinal doses. May have mild blood-thinning properties. For educational purposes only \u2014 consult a qualified Ayurvedic practitioner before use.",
+    "tags": [
+      "adaptogen",
+      "respiratory",
+      "immune",
+      "sacred",
+      "antimicrobial"
+    ],
+    "image_url": "/images/herbs/1.jpg"
+  },
+  {
+    "id": 2,
+    "name": "Neem",
+    "common_name": "Indian Lilac",
+    "scientific_name": "Azadirachta indica",
+    "sanskrit_name": "Nimba",
+    "hindi_name": "Neem",
+    "gujarati_name": "Limdo",
+    "botanical_family": "Meliaceae",
+    "description": "Neem is a fast-growing tree native to the Indian subcontinent, often called the 'Village Pharmacy' of India. Every part of the tree \u2014 leaves, bark, seeds, and oil \u2014 has medicinal value. It has been used in Ayurvedic medicine for over 4,500 years. Known for its bitter taste and remarkable antimicrobial properties.",
+    "traditional_uses": [
+      "Skin disorders \u2013 treats acne, eczema, psoriasis, and fungal infections",
+      "Dental care \u2013 used in traditional toothbrushes (datun) and toothpastes",
+      "Blood purification \u2013 detoxifies blood",
+      "Anti-diabetic properties \u2013 helps regulate blood sugar",
+      "Wound healing and antiseptic applications",
+      "Pest repellent in organic farming",
+      "Liver protection and detoxification"
+    ],
+    "plant_parts_used": [
+      "Leaves",
+      "Bark",
+      "Seeds",
+      "Oil",
+      "Flowers",
+      "Fruit"
+    ],
+    "dosha": {
+      "balances": [
+        "Pitta",
+        "Kapha"
+      ],
+      "may_aggravate": [
+        "Vata (in excess)"
+      ],
+      "rasa": "Tikta (bitter), Kashaya (astringent)",
+      "virya": "Sheeta (cooling potency)",
+      "vipaka": "Katu (pungent post-digestive)"
+    },
+    "cultivation": {
+      "climate": "Semi-arid to sub-humid tropical; drought-tolerant",
+      "soil": "Sandy loam to clay loam; tolerates alkaline and poor soils",
+      "watering": "Drought-tolerant once established; moderate watering",
+      "sunlight": "Full sun",
+      "propagation": "Seeds or transplanting seedlings",
+      "harvesting": "Leaves year-round; fruits/seeds in summer"
+    },
+    "habitat": "Native to Indian subcontinent and Myanmar; naturalized in tropical Africa and Americas",
+    "safety_notes": "Neem is toxic in large quantities. Neem oil should never be taken internally. Pregnant and breastfeeding women should avoid medicinal neem. Not recommended for children under 12 in concentrated forms. For educational purposes only.",
+    "tags": [
+      "antimicrobial",
+      "skin",
+      "dental",
+      "detox",
+      "pest-repellent"
+    ],
+    "image_url": "/images/herbs/2.jpg"
+  },
+  {
+    "id": 3,
+    "name": "Ashwagandha",
+    "common_name": "Indian Winter Cherry / Indian Ginseng",
+    "scientific_name": "Withania somnifera",
+    "sanskrit_name": "Ashvagandha",
+    "hindi_name": "Ashwagandha",
+    "gujarati_name": "Asoda",
+    "botanical_family": "Solanaceae",
+    "description": "Ashwagandha is one of the most powerful adaptogenic herbs in Ayurvedic medicine. Its name means 'smell of horse' in Sanskrit, referring to the herb's unique smell and its ability to impart the strength of a horse. The root is the primary medicinal part. It is classified as a Rasayana (rejuvenating tonic) in Ayurveda.",
+    "traditional_uses": [
+      "Adaptogen \u2013 manages stress, anxiety, and cortisol levels",
+      "Cognitive function \u2013 improves memory, focus, and mental clarity",
+      "Energy and vitality \u2013 combats fatigue and improves stamina",
+      "Hormonal balance \u2013 supports thyroid and adrenal function",
+      "Anti-inflammatory \u2013 reduces inflammation markers",
+      "Reproductive health \u2013 traditionally used as an aphrodisiac",
+      "Sleep quality \u2013 promotes restful sleep (somnifera = sleep-inducing)"
+    ],
+    "plant_parts_used": [
+      "Root",
+      "Leaves",
+      "Seeds",
+      "Berries"
+    ],
+    "dosha": {
+      "balances": [
+        "Vata",
+        "Kapha"
+      ],
+      "may_aggravate": [
+        "Pitta (in excess)"
+      ],
+      "rasa": "Tikta (bitter), Kashaya (astringent), Madhura (sweet)",
+      "virya": "Ushna (hot potency)",
+      "vipaka": "Madhura (sweet post-digestive)"
+    },
+    "cultivation": {
+      "climate": "Dry, subtropical climate; tolerates arid conditions",
+      "soil": "Sandy loam, well-drained, low fertility preferred",
+      "watering": "Low water requirement; drought tolerant",
+      "sunlight": "Full sun",
+      "propagation": "Seeds sown during June\u2013August",
+      "harvesting": "Roots harvested 150\u2013180 days after sowing"
+    },
+    "habitat": "Native to India, North Africa, and Mediterranean; grows in dry regions",
+    "safety_notes": "Avoid during pregnancy (may cause miscarriage). May interact with thyroid medications, immunosuppressants, and sedatives. Not recommended for people with autoimmune conditions without professional guidance. For educational purposes only.",
+    "tags": [
+      "adaptogen",
+      "stress",
+      "cognitive",
+      "energy",
+      "rasayana",
+      "sleep"
+    ],
+    "image_url": "/images/herbs/3.jpg"
+  },
+  {
+    "id": 4,
+    "name": "Turmeric",
+    "common_name": "Golden Spice",
+    "scientific_name": "Curcuma longa",
+    "sanskrit_name": "Haridra",
+    "hindi_name": "Haldi",
+    "gujarati_name": "Haldi",
+    "botanical_family": "Zingiberaceae",
+    "description": "Turmeric is a rhizomatous plant widely used as a spice, dye, and medicine. The bright yellow-orange rhizome contains curcumin, the primary bioactive compound responsible for its anti-inflammatory and antioxidant properties. It has been used in Ayurveda for thousands of years and is known as the 'Spice of Life.'",
+    "traditional_uses": [
+      "Anti-inflammatory \u2013 curcumin is a powerful COX-2 inhibitor",
+      "Wound healing \u2013 applied topically for cuts and burns",
+      "Digestive health \u2013 stimulates bile production and digestion",
+      "Joint health \u2013 used for arthritis and rheumatic conditions",
+      "Skin brightening \u2013 natural complexion enhancer",
+      "Liver protection \u2013 hepatoprotective properties",
+      "Antimicrobial and antifungal properties"
+    ],
+    "plant_parts_used": [
+      "Rhizome (root)",
+      "Leaves"
+    ],
+    "dosha": {
+      "balances": [
+        "Vata",
+        "Pitta",
+        "Kapha"
+      ],
+      "may_aggravate": [
+        "Pitta (in large doses)"
+      ],
+      "rasa": "Tikta (bitter), Katu (pungent)",
+      "virya": "Ushna (hot potency)",
+      "vipaka": "Katu (pungent post-digestive)"
+    },
+    "cultivation": {
+      "climate": "Warm and humid tropical; 20\u201330\u00b0C optimal",
+      "soil": "Well-drained loamy or clay loam soil rich in organic matter",
+      "watering": "Regular watering; requires good moisture",
+      "sunlight": "Partial shade to full sun",
+      "propagation": "Rhizome pieces planted in April\u2013May",
+      "harvesting": "9\u201310 months after planting; leaves turn yellow-brown"
+    },
+    "habitat": "Native to South and Southeast Asia; widely cultivated in tropical regions",
+    "safety_notes": "Generally safe in culinary amounts. High doses may cause gastrointestinal issues. May interact with blood thinners. Avoid supplements during pregnancy in large amounts. For educational purposes only.",
+    "tags": [
+      "anti-inflammatory",
+      "antioxidant",
+      "skin",
+      "digestive",
+      "golden"
+    ],
+    "image_url": "/images/herbs/4.jpg"
+  },
+  {
+    "id": 5,
+    "name": "Ginger",
+    "common_name": "Ginger Root",
+    "scientific_name": "Zingiber officinale",
+    "sanskrit_name": "Shunthi (dry) / Ardraka (fresh)",
+    "hindi_name": "Adrak (fresh) / Sonth (dry)",
+    "gujarati_name": "Adu",
+    "botanical_family": "Zingiberaceae",
+    "description": "Ginger is one of the world's most widely used medicinal plants and culinary spices. The underground rhizome contains gingerols and shogaols, bioactive compounds with potent anti-nausea, anti-inflammatory, and digestive properties. In Ayurveda, fresh ginger (Ardraka) and dry ginger (Shunthi) are treated as distinct medicines.",
+    "traditional_uses": [
+      "Nausea and vomiting \u2013 motion sickness, morning sickness",
+      "Digestive stimulant \u2013 improves appetite and digestion",
+      "Anti-inflammatory \u2013 for arthritis and muscle pain",
+      "Respiratory \u2013 relieves cold, cough, and sore throat",
+      "Circulatory \u2013 improves blood circulation",
+      "Analgesic \u2013 pain-relieving properties",
+      "Carminative \u2013 reduces gas and bloating"
+    ],
+    "plant_parts_used": [
+      "Rhizome (fresh and dried)"
+    ],
+    "dosha": {
+      "balances": [
+        "Vata",
+        "Kapha"
+      ],
+      "may_aggravate": [
+        "Pitta (in excess)"
+      ],
+      "rasa": "Katu (pungent)",
+      "virya": "Ushna (hot potency)",
+      "vipaka": "Madhura (fresh) / Katu (dry)"
+    },
+    "cultivation": {
+      "climate": "Warm, humid tropical and subtropical",
+      "soil": "Rich loamy soil, well-drained with high organic content",
+      "watering": "Regular; keep moist but not waterlogged",
+      "sunlight": "Partial shade preferred",
+      "propagation": "Rhizome pieces with 2\u20133 buds",
+      "harvesting": "8\u201310 months; dry ginger after 10 months"
+    },
+    "habitat": "Native to Southeast Asia; now cultivated throughout tropical regions worldwide",
+    "safety_notes": "Safe in culinary amounts. May interact with blood thinners and diabetes medications. Avoid large amounts during pregnancy. May cause heartburn in sensitive individuals. For educational purposes only.",
+    "tags": [
+      "digestive",
+      "anti-nausea",
+      "anti-inflammatory",
+      "respiratory",
+      "circulatory"
+    ],
+    "image_url": "/images/herbs/5.jpg"
+  },
+  {
+    "id": 6,
+    "name": "Amla",
+    "common_name": "Indian Gooseberry",
+    "scientific_name": "Phyllanthus emblica",
+    "sanskrit_name": "Amalaki",
+    "hindi_name": "Amla",
+    "gujarati_name": "Amla",
+    "botanical_family": "Phyllanthaceae",
+    "description": "Amla is a sacred fruit tree in Ayurveda, considered one of the most powerful Rasayanas. It is the richest natural source of Vitamin C, which remains stable due to tannins even after heat processing. The sour, astringent fruit is used in Triphala (a classical Ayurvedic formulation) and Chyawanprash.",
+    "traditional_uses": [
+      "Vitamin C powerhouse \u2013 immune system support",
+      "Hair health \u2013 prevents hair fall, premature greying; used in Amla oil",
+      "Digestive tonic \u2013 relieves constipation and hyperacidity",
+      "Anti-aging Rasayana \u2013 cellular rejuvenation",
+      "Eye health \u2013 improves eyesight",
+      "Liver tonic \u2013 hepatoprotective",
+      "Diabetes management \u2013 regulates blood sugar"
+    ],
+    "plant_parts_used": [
+      "Fruit",
+      "Seeds",
+      "Leaves",
+      "Bark",
+      "Roots"
+    ],
+    "dosha": {
+      "balances": [
+        "Vata",
+        "Pitta",
+        "Kapha"
+      ],
+      "may_aggravate": [
+        "None (considered tridoshic)"
+      ],
+      "rasa": "All 5 rasas except salty (Pancha Rasa)",
+      "virya": "Sheeta (cooling potency)",
+      "vipaka": "Madhura (sweet post-digestive)"
+    },
+    "cultivation": {
+      "climate": "Tropical and subtropical; drought-tolerant once established",
+      "soil": "Loamy to sandy loam; slightly acidic to neutral pH",
+      "watering": "Moderate; drought-tolerant",
+      "sunlight": "Full sun",
+      "propagation": "Seeds or grafting",
+      "harvesting": "October\u2013April; fruits mature in winter"
+    },
+    "habitat": "Native to tropical and subtropical India, Sri Lanka, and Southeast Asia",
+    "safety_notes": "Generally very safe. May cause constipation if consumed in large amounts without adequate water. May lower blood sugar \u2014 diabetics on medication should monitor. For educational purposes only.",
+    "tags": [
+      "vitamin-c",
+      "rasayana",
+      "hair",
+      "immune",
+      "tridoshic",
+      "anti-aging"
+    ],
+    "image_url": "/images/herbs/6.jpg"
+  },
+  {
+    "id": 7,
+    "name": "Brahmi",
+    "common_name": "Water Hyssop / Herb of Grace",
+    "scientific_name": "Bacopa monnieri",
+    "sanskrit_name": "Brahmi",
+    "hindi_name": "Brahmi",
+    "gujarati_name": "Brahmi",
+    "botanical_family": "Plantaginaceae",
+    "description": "Brahmi is a small, creeping perennial herb that grows in wet, marshy conditions. Named after Brahma, the Hindu god of creation, it is revered as a brain tonic in Ayurveda. Active compounds called bacosides improve nerve signal transmission and support brain health. It is one of the most studied Ayurvedic herbs in modern neuroscience.",
+    "traditional_uses": [
+      "Cognitive enhancement \u2013 memory, learning, and concentration",
+      "Neuroprotective \u2013 protects brain cells from oxidative stress",
+      "Anti-anxiety and stress relief",
+      "Epilepsy and nervous system disorders",
+      "Hair growth when applied topically as Brahmi oil",
+      "Respiratory conditions \u2013 asthma and bronchitis",
+      "Anti-inflammatory properties"
+    ],
+    "plant_parts_used": [
+      "Whole plant (leaves, stems)",
+      "Roots"
+    ],
+    "dosha": {
+      "balances": [
+        "Vata",
+        "Pitta",
+        "Kapha"
+      ],
+      "may_aggravate": [
+        "None when used appropriately"
+      ],
+      "rasa": "Tikta (bitter), Kashaya (astringent), Madhura (sweet)",
+      "virya": "Sheeta (cooling potency)",
+      "vipaka": "Madhura (sweet post-digestive)"
+    },
+    "cultivation": {
+      "climate": "Warm, moist environments; semi-aquatic",
+      "soil": "Moist, loamy or muddy soil near water bodies",
+      "watering": "High moisture; can grow in shallow water",
+      "sunlight": "Full sun to partial shade",
+      "propagation": "Stem cuttings or seeds",
+      "harvesting": "Leaves harvested throughout the year"
+    },
+    "habitat": "Wetlands, marshes, and water margins across India, Asia, Australia, and Americas",
+    "safety_notes": "Generally safe. May cause nausea in some individuals when taken on an empty stomach. High doses can cause GI issues. May potentiate sedative drugs. For educational purposes only.",
+    "tags": [
+      "cognitive",
+      "memory",
+      "brain-tonic",
+      "neuroprotective",
+      "adaptogen"
+    ],
+    "image_url": "/images/herbs/7.jpg"
+  },
+  {
+    "id": 8,
+    "name": "Shatavari",
+    "common_name": "Asparagus Root",
+    "scientific_name": "Asparagus racemosus",
+    "sanskrit_name": "Shatavari",
+    "hindi_name": "Shatavar",
+    "gujarati_name": "Shatavari",
+    "botanical_family": "Asparagaceae",
+    "description": "Shatavari, meaning 'she who possesses a hundred husbands,' is the premier Ayurvedic herb for women's reproductive health. It is a climbing plant with small pine-needle-like leaves and white flowers. The tuberous roots are the medicinal part. It is classified as a Rasayana with adaptogenic and immunomodulatory properties.",
+    "traditional_uses": [
+      "Women's health \u2013 hormonal balance, menstrual regulation, menopause support",
+      "Lactation support \u2013 promotes breast milk production",
+      "Reproductive tonic \u2013 fertility support for both men and women",
+      "Adaptogen \u2013 stress resilience",
+      "Digestive healing \u2013 soothes ulcers and hyperacidity",
+      "Immunomodulator \u2013 enhances immune response",
+      "Aphrodisiac properties"
+    ],
+    "plant_parts_used": [
+      "Roots (tuberous)",
+      "Leaves"
+    ],
+    "dosha": {
+      "balances": [
+        "Vata",
+        "Pitta"
+      ],
+      "may_aggravate": [
+        "Kapha (in excess)"
+      ],
+      "rasa": "Madhura (sweet), Tikta (bitter)",
+      "virya": "Sheeta (cooling potency)",
+      "vipaka": "Madhura (sweet post-digestive)"
+    },
+    "cultivation": {
+      "climate": "Tropical and subtropical; thrives in warm, humid conditions",
+      "soil": "Loamy, well-drained soil with good organic content",
+      "watering": "Moderate; regular watering during dry periods",
+      "sunlight": "Full sun to partial shade",
+      "propagation": "Seeds or root division",
+      "harvesting": "Roots harvested after 18\u201324 months"
+    },
+    "habitat": "Found throughout India, Sri Lanka, and the Himalayas in low forest areas",
+    "safety_notes": "Avoid if allergic to asparagus family. May interact with diuretics. Those with kidney disease should use cautiously. Generally safe but consult a practitioner for therapeutic doses. For educational purposes only.",
+    "tags": [
+      "women's-health",
+      "hormonal",
+      "lactation",
+      "reproductive",
+      "rasayana"
+    ],
+    "image_url": "/images/herbs/8.jpg"
+  },
+  {
+    "id": 9,
+    "name": "Haritaki",
+    "common_name": "Chebulic Myrobalan / Black Myrobalan",
+    "scientific_name": "Terminalia chebula",
+    "sanskrit_name": "Haritaki",
+    "hindi_name": "Harad",
+    "gujarati_name": "Harda",
+    "botanical_family": "Combretaceae",
+    "description": "Haritaki is one of the three fruits in Triphala, the most famous Ayurvedic formulation. Called the 'King of Medicines' in Tibet and the 'Mother of all Medicines' in traditional systems, it is considered the most important herb in Ayurveda. The dried fruit is wrinkled, brown, and rich in tannins and polyphenols.",
+    "traditional_uses": [
+      "Digestive rejuvenator \u2013 relieves constipation, regulates bowel movement",
+      "Detoxification \u2013 cleansing the colon and digestive tract",
+      "Respiratory conditions \u2013 chronic cough, hoarseness",
+      "Oral health \u2013 gargling for mouth ulcers and gum disease",
+      "Eye health \u2013 eyewash for conjunctivitis",
+      "Wound healing \u2013 antimicrobial paste",
+      "Anti-aging Rasayana"
+    ],
+    "plant_parts_used": [
+      "Fruit (dried)",
+      "Seeds",
+      "Bark"
+    ],
+    "dosha": {
+      "balances": [
+        "Vata",
+        "Pitta",
+        "Kapha"
+      ],
+      "may_aggravate": [
+        "None (tridoshic)"
+      ],
+      "rasa": "All 6 tastes present except salty",
+      "virya": "Ushna (hot potency)",
+      "vipaka": "Madhura (sweet post-digestive)"
+    },
+    "cultivation": {
+      "climate": "Tropical dry and moist deciduous forests; semi-arid",
+      "soil": "Various soil types; sandy loam to clay loam",
+      "watering": "Low to moderate; drought-tolerant",
+      "sunlight": "Full sun",
+      "propagation": "Seeds; grafting for faster fruit production",
+      "harvesting": "Fruits harvested October\u2013December when ripe"
+    },
+    "habitat": "Native to India, Nepal, Myanmar, Sri Lanka; grows in tropical forests",
+    "safety_notes": "Avoid during pregnancy (strong laxative effect). May cause loose stools in high doses. Take with caution if dehydrated or on laxatives. For educational purposes only.",
+    "tags": [
+      "triphala",
+      "digestive",
+      "detox",
+      "rasayana",
+      "anti-aging",
+      "tridoshic"
+    ],
+    "image_url": "/images/herbs/9.jpg"
+  },
+  {
+    "id": 10,
+    "name": "Giloy",
+    "common_name": "Heart-leaved Moonseed / Guduchi",
+    "scientific_name": "Tinospora cordifolia",
+    "sanskrit_name": "Guduchi",
+    "hindi_name": "Giloy",
+    "gujarati_name": "Galo",
+    "botanical_family": "Menispermaceae",
+    "description": "Giloy is a climbing shrub with heart-shaped leaves and yellow-green flowers. The stem is the primary medicinal part, though leaves and roots are also used. Known as 'Amrita' (divine nectar) in Ayurveda, it is a powerful immunomodulator and adaptogen. It gained global attention during COVID-19 for its immune-boosting properties.",
+    "traditional_uses": [
+      "Immune modulator \u2013 one of the strongest immunostimulants in Ayurveda",
+      "Fever management \u2013 antipyretic properties (used in dengue, malaria recovery)",
+      "Anti-diabetic \u2013 regulates blood glucose levels",
+      "Liver protection \u2013 hepatoprotective and anti-toxic",
+      "Arthritis and gout \u2013 anti-inflammatory",
+      "Digestive health \u2013 relieves hyperacidity",
+      "Anti-allergic \u2013 reduces allergic responses"
+    ],
+    "plant_parts_used": [
+      "Stem",
+      "Leaves",
+      "Roots"
+    ],
+    "dosha": {
+      "balances": [
+        "Vata",
+        "Pitta",
+        "Kapha"
+      ],
+      "may_aggravate": [
+        "None (tridoshic)"
+      ],
+      "rasa": "Tikta (bitter), Kashaya (astringent)",
+      "virya": "Ushna (hot potency)",
+      "vipaka": "Madhura (sweet post-digestive)"
+    },
+    "cultivation": {
+      "climate": "Tropical and subtropical; adaptable to varied conditions",
+      "soil": "Well-drained, loamy soil; can grow in rocky terrain",
+      "watering": "Moderate; drought-tolerant",
+      "sunlight": "Full sun to partial shade",
+      "propagation": "Stem cuttings (most common); seeds",
+      "harvesting": "Stem harvested throughout the year; best in summer"
+    },
+    "habitat": "Native to tropical India; found throughout India, Sri Lanka, Myanmar",
+    "safety_notes": "May stimulate the immune system \u2014 avoid in autoimmune conditions (lupus, rheumatoid arthritis) without professional guidance. May lower blood sugar \u2014 monitor if diabetic. For educational purposes only.",
+    "tags": [
+      "immune",
+      "adaptogen",
+      "antipyretic",
+      "anti-diabetic",
+      "liver",
+      "amrita"
+    ],
+    "image_url": "/images/herbs/10.jpg"
+  },
+  {
+    "id": 11,
+    "name": "Aloe Vera",
+    "common_name": "Burn Plant / Aloe",
+    "scientific_name": "Aloe barbadensis miller",
+    "sanskrit_name": "Kumari",
+    "hindi_name": "Ghritkumari",
+    "gujarati_name": "Kuvarpanthu",
+    "botanical_family": "Asphodelaceae",
+    "description": "Aloe vera is a succulent plant with thick, fleshy leaves containing a clear gel. The inner gel and yellow latex (found just below the skin) have distinct medicinal properties. Kumari in Ayurveda means 'young girl,' referring to its ability to restore youth and vitality. It is one of the most extensively researched plants in modern herbal medicine.",
+    "traditional_uses": [
+      "Skin healing \u2013 burns, sunburns, wounds, and skin irritations",
+      "Moisturizer and skin tonic",
+      "Digestive health \u2013 relieves constipation (latex), soothes gut inflammation",
+      "Immune modulation",
+      "Hair conditioning \u2013 reduces dandruff, promotes hair growth",
+      "Anti-inflammatory for joints",
+      "Blood sugar regulation"
+    ],
+    "plant_parts_used": [
+      "Leaf gel",
+      "Leaf latex (yellow sap)",
+      "Whole leaf"
+    ],
+    "dosha": {
+      "balances": [
+        "Pitta",
+        "Vata",
+        "Kapha"
+      ],
+      "may_aggravate": [
+        "None in moderate amounts"
+      ],
+      "rasa": "Tikta (bitter), Madhura (sweet)",
+      "virya": "Sheeta (cooling potency)",
+      "vipaka": "Katu (pungent post-digestive)"
+    },
+    "cultivation": {
+      "climate": "Arid and semi-arid; drought-tolerant succulent",
+      "soil": "Sandy, well-draining soil; cactus mix ideal",
+      "watering": "Infrequent; allow soil to dry between waterings",
+      "sunlight": "Bright indirect to direct sun",
+      "propagation": "Offsets (pups) from the base of the plant",
+      "harvesting": "Outer leaves from mature plants (3+ years)"
+    },
+    "habitat": "Native to the Arabian Peninsula; now cultivated worldwide in warm climates",
+    "safety_notes": "The yellow latex can cause severe diarrhea \u2014 avoid internal use of latex. Topical gel is generally safe. Avoid oral use during pregnancy. May interact with laxatives and anti-diabetic drugs. For educational purposes only.",
+    "tags": [
+      "skin",
+      "soothing",
+      "burn",
+      "digestive",
+      "moisturizer",
+      "hair"
+    ],
+    "image_url": "/images/herbs/11.jpg"
+  },
+  {
+    "id": 12,
+    "name": "Moringa",
+    "common_name": "Drumstick Tree / Miracle Tree",
+    "scientific_name": "Moringa oleifera",
+    "sanskrit_name": "Shigru",
+    "hindi_name": "Sahjan",
+    "gujarati_name": "Sargvo",
+    "botanical_family": "Moringaceae",
+    "description": "Moringa is called the 'Miracle Tree' because virtually every part is edible or medicinal. It is one of the most nutrient-dense plants on Earth, containing 7\u00d7 more vitamin C than oranges, 4\u00d7 more calcium than milk, and 3\u00d7 more potassium than bananas. In Ayurveda, it is classified as a Rasayana and used for over 300 diseases in traditional texts.",
+    "traditional_uses": [
+      "Nutritional supplement \u2013 combats malnutrition",
+      "Anti-inflammatory \u2013 reduces inflammation and pain",
+      "Blood sugar regulation \u2013 anti-diabetic properties",
+      "Blood pressure management \u2013 reduces hypertension",
+      "Liver protection",
+      "Edema and water retention \u2013 diuretic properties",
+      "Antimicrobial and wound healing"
+    ],
+    "plant_parts_used": [
+      "Leaves",
+      "Pods (drumsticks)",
+      "Seeds",
+      "Roots",
+      "Bark",
+      "Flowers",
+      "Oil"
+    ],
+    "dosha": {
+      "balances": [
+        "Kapha",
+        "Vata"
+      ],
+      "may_aggravate": [
+        "Pitta (in excess)"
+      ],
+      "rasa": "Tikta (bitter), Katu (pungent)",
+      "virya": "Ushna (hot potency)",
+      "vipaka": "Katu (pungent post-digestive)"
+    },
+    "cultivation": {
+      "climate": "Tropical and subtropical; drought-resistant",
+      "soil": "Sandy or loamy, well-drained; poor soil tolerance",
+      "watering": "Low water requirement; avoid waterlogging",
+      "sunlight": "Full sun",
+      "propagation": "Seeds or stem cuttings (fastest)",
+      "harvesting": "Leaves harvested 60 days after planting; pods after 6\u20138 months"
+    },
+    "habitat": "Native to sub-Himalayan region of India; widely cultivated in tropical Africa and Asia",
+    "safety_notes": "Roots contain spirochin (potentially toxic nerve-paralyzing agent) \u2014 avoid root consumption in large amounts. Generally safe when leaves and pods are consumed as food. Avoid high-dose supplements during pregnancy. For educational purposes only.",
+    "tags": [
+      "superfood",
+      "nutritious",
+      "anti-inflammatory",
+      "anti-diabetic",
+      "miracle-tree"
+    ],
+    "image_url": "/images/herbs/12.jpg"
+  },
+  {
+    "id": 13,
+    "name": "Fenugreek",
+    "common_name": "Methi",
+    "scientific_name": "Trigonella foenum-graecum",
+    "sanskrit_name": "Methi",
+    "hindi_name": "Methi",
+    "gujarati_name": "Methi",
+    "botanical_family": "Fabaceae",
+    "description": "Fenugreek is an annual herb with distinctive maple-syrup aroma from the compound sotolone. Both leaves and seeds are used as food and medicine. The seeds contain galactomannans, a soluble fiber that slows glucose absorption, making fenugreek one of the best-studied anti-diabetic plants. It is commonly used in Indian cooking and traditional medicine.",
+    "traditional_uses": [
+      "Blood sugar control \u2013 anti-diabetic properties via galactomannans",
+      "Cholesterol management \u2013 reduces LDL cholesterol",
+      "Digestive aid \u2013 relieves constipation and gastritis",
+      "Lactation support \u2013 galactagogue that increases milk production",
+      "Appetite stimulant",
+      "Anti-inflammatory for joint pain",
+      "Skin and hair health when applied topically"
+    ],
+    "plant_parts_used": [
+      "Seeds",
+      "Leaves (fresh and dried)"
+    ],
+    "dosha": {
+      "balances": [
+        "Vata",
+        "Kapha"
+      ],
+      "may_aggravate": [
+        "Pitta (in excess)"
+      ],
+      "rasa": "Tikta (bitter), Katu (pungent)",
+      "virya": "Ushna (hot potency)",
+      "vipaka": "Katu (pungent post-digestive)"
+    },
+    "cultivation": {
+      "climate": "Cool season crop; prefers 10\u201325\u00b0C",
+      "soil": "Well-drained loamy soil; slightly alkaline preferred",
+      "watering": "Moderate; avoid excess water",
+      "sunlight": "Full sun",
+      "propagation": "Direct seeding in October\u2013November",
+      "harvesting": "Leaves: 4\u20136 weeks; Seeds: 4 months after sowing"
+    },
+    "habitat": "Mediterranean region and Western Asia; widely cultivated in India",
+    "safety_notes": "May cause uterine contractions \u2014 avoid therapeutic doses during pregnancy. Can interact with anti-diabetic medications (risk of hypoglycemia). May cause maple syrup odor in sweat and urine. For educational purposes only.",
+    "tags": [
+      "anti-diabetic",
+      "lactation",
+      "digestive",
+      "cholesterol",
+      "culinary"
+    ],
+    "image_url": "/images/herbs/13.jpg"
+  },
+  {
+    "id": 14,
+    "name": "Licorice",
+    "common_name": "Mulethi / Liquorice",
+    "scientific_name": "Glycyrrhiza glabra",
+    "sanskrit_name": "Yashtimadhu",
+    "hindi_name": "Mulethi",
+    "gujarati_name": "Jethimadh",
+    "botanical_family": "Fabaceae",
+    "description": "Licorice root is one of the world's oldest herbal remedies. The root contains glycyrrhizin, which is 50 times sweeter than sugar. In Ayurveda, Yashtimadhu (meaning 'sweet wood') is classified as a Rasayana. It is a primary ingredient in many Ayurvedic preparations for respiratory and digestive health.",
+    "traditional_uses": [
+      "Respiratory health \u2013 cough, sore throat, bronchitis, asthma",
+      "Digestive healing \u2013 ulcers, gastritis, heartburn",
+      "Adrenal support \u2013 fatigue and adrenal insufficiency",
+      "Anti-inflammatory \u2013 similar to corticosteroid action",
+      "Hormonal balance \u2013 mild estrogenic effects",
+      "Oral health \u2013 antibacterial for dental plaque",
+      "Voice tonic \u2013 used by singers in India"
+    ],
+    "plant_parts_used": [
+      "Root",
+      "Rhizome"
+    ],
+    "dosha": {
+      "balances": [
+        "Vata",
+        "Pitta"
+      ],
+      "may_aggravate": [
+        "Kapha (in excess due to sweetness)"
+      ],
+      "rasa": "Madhura (sweet), Tikta (bitter)",
+      "virya": "Sheeta (cooling potency)",
+      "vipaka": "Madhura (sweet post-digestive)"
+    },
+    "cultivation": {
+      "climate": "Temperate to semi-arid; cool winters",
+      "soil": "Deep, well-drained sandy loam; alkaline tolerance",
+      "watering": "Moderate; drought-tolerant",
+      "sunlight": "Full sun",
+      "propagation": "Root cuttings or seeds",
+      "harvesting": "Roots harvested after 3\u20134 years"
+    },
+    "habitat": "Native to Southern Europe, Middle East, and Central Asia; cultivated in India",
+    "safety_notes": "Avoid prolonged high-dose use \u2014 can raise blood pressure, cause fluid retention, and lower potassium. Not recommended for people with hypertension, kidney disease, or during pregnancy. For educational purposes only.",
+    "tags": [
+      "respiratory",
+      "digestive",
+      "sweet",
+      "rasayana",
+      "throat",
+      "anti-ulcer"
+    ],
+    "image_url": "/images/herbs/14.jpg"
+  },
+  {
+    "id": 15,
+    "name": "Peppermint",
+    "common_name": "Pudina / Mint",
+    "scientific_name": "Mentha \u00d7 piperita",
+    "sanskrit_name": "Pudina",
+    "hindi_name": "Pudina",
+    "gujarati_name": "Fudino",
+    "botanical_family": "Lamiaceae",
+    "description": "Peppermint is a hybrid mint species known for its refreshing menthol aroma. The essential oil contains high concentrations of menthol, which activates cold receptors and produces the characteristic cooling sensation. It is widely used in Ayurveda for its carminative, analgesic, and antimicrobial properties.",
+    "traditional_uses": [
+      "Digestive relief \u2013 IBS, bloating, gas, nausea",
+      "Headache relief \u2013 topical application of oil on temples",
+      "Respiratory decongestant \u2013 clears nasal passages",
+      "Oral freshener \u2013 antibacterial mouthwash",
+      "Pain relief \u2013 menthol for muscle aches",
+      "Skin cooling and anti-itch applications",
+      "Mental alertness and energy"
+    ],
+    "plant_parts_used": [
+      "Leaves",
+      "Essential oil"
+    ],
+    "dosha": {
+      "balances": [
+        "Pitta",
+        "Kapha"
+      ],
+      "may_aggravate": [
+        "Vata (cooling effect in excess)"
+      ],
+      "rasa": "Katu (pungent), Tikta (bitter)",
+      "virya": "Sheeta (cooling potency)",
+      "vipaka": "Katu (pungent post-digestive)"
+    },
+    "cultivation": {
+      "climate": "Temperate; prefers cool, moist conditions",
+      "soil": "Moist, well-drained loamy soil; rich in organic matter",
+      "watering": "Regular; keep soil moist",
+      "sunlight": "Full sun to partial shade",
+      "propagation": "Stolons (runners) or stem cuttings",
+      "harvesting": "Before flowering; cut 1/3 of plant height"
+    },
+    "habitat": "Originated in Europe; naturalized worldwide in moist habitats",
+    "safety_notes": "Do not apply peppermint oil directly to the face of infants or young children \u2014 can cause breathing difficulties. Avoid in acid reflux/GERD. May interact with certain medications. For educational purposes only.",
+    "tags": [
+      "digestive",
+      "cooling",
+      "menthol",
+      "headache",
+      "oral",
+      "respiratory"
+    ],
+    "image_url": "/images/herbs/15.jpg"
+  },
+  {
+    "id": 16,
+    "name": "Cardamom",
+    "common_name": "Green Cardamom / Elaichi",
+    "scientific_name": "Elettaria cardamomum",
+    "sanskrit_name": "Ela",
+    "hindi_name": "Elaichi",
+    "gujarati_name": "Elchi",
+    "botanical_family": "Zingiberaceae",
+    "description": "Cardamom is known as the 'Queen of Spices.' It is a perennial herb with long leaves and small green pods containing aromatic seeds. The essential oil contains 1,8-cineole and terpinyl acetate. It is used extensively in Ayurveda as a digestive, carminative, and rejuvenating herb. It is also a key ingredient in Chyawanprash.",
+    "traditional_uses": [
+      "Digestive stimulant \u2013 relieves indigestion, gas, and nausea",
+      "Oral deodorizer \u2013 freshens breath",
+      "Respiratory health \u2013 expectorant for cough and congestion",
+      "Detoxification \u2013 enhances liver and kidney function",
+      "Anti-depressant properties",
+      "Aphrodisiac in traditional formulations",
+      "Antimicrobial \u2013 fights bacteria and fungi"
+    ],
+    "plant_parts_used": [
+      "Seeds",
+      "Pods (fruits)",
+      "Essential oil"
+    ],
+    "dosha": {
+      "balances": [
+        "Vata",
+        "Kapha"
+      ],
+      "may_aggravate": [
+        "Pitta (mildly, in excess)"
+      ],
+      "rasa": "Madhura (sweet), Katu (pungent)",
+      "virya": "Sheeta (cooling potency)",
+      "vipaka": "Madhura (sweet post-digestive)"
+    },
+    "cultivation": {
+      "climate": "Cool, shaded tropical forests; high altitude (600\u20131500m)",
+      "soil": "Rich loamy forest soil with high organic matter",
+      "watering": "Regular; high humidity preferred",
+      "sunlight": "Partial shade (grown under tree canopy)",
+      "propagation": "Seeds or rhizome division",
+      "harvesting": "Pods harvested by hand before fully ripe; 3\u20134 years to first harvest"
+    },
+    "habitat": "Native to Western Ghats, India; cultivated in Kerala, Guatemala, and Sri Lanka",
+    "safety_notes": "Generally safe in culinary amounts. High doses may cause gallstone colic in those with existing gallstones. Avoid large therapeutic doses during pregnancy. For educational purposes only.",
+    "tags": [
+      "digestive",
+      "spice",
+      "oral",
+      "respiratory",
+      "aromatic",
+      "queen-of-spices"
+    ],
+    "image_url": "/images/herbs/16.jpg"
+  },
+  {
+    "id": 17,
+    "name": "Black Pepper",
+    "common_name": "King of Spices",
+    "scientific_name": "Piper nigrum",
+    "sanskrit_name": "Maricha",
+    "hindi_name": "Kali Mirch",
+    "gujarati_name": "Mari",
+    "botanical_family": "Piperaceae",
+    "description": "Black pepper is one of the most widely traded spices and has been used since ancient times. Piperine, its active compound, not only gives pepper its pungency but also significantly enhances the bioavailability of other herbs and drugs (notably curcumin from turmeric by 2000%). In Ayurveda, Maricha is classified as an Agni (digestive fire) enhancer.",
+    "traditional_uses": [
+      "Digestive fire (Agni) enhancer \u2013 stimulates digestion",
+      "Bioavailability enhancer \u2013 improves absorption of other medicines",
+      "Respiratory \u2013 relieves cough, cold, and sinusitis",
+      "Analgesic \u2013 pain relief topically and internally",
+      "Antimicrobial and antifungal",
+      "Anti-oxidant properties",
+      "Weight management \u2013 metabolism booster"
+    ],
+    "plant_parts_used": [
+      "Fruit (berries)",
+      "Essential oil"
+    ],
+    "dosha": {
+      "balances": [
+        "Vata",
+        "Kapha"
+      ],
+      "may_aggravate": [
+        "Pitta (strongly heating)"
+      ],
+      "rasa": "Katu (pungent)",
+      "virya": "Ushna (hot potency, strongly)",
+      "vipaka": "Katu (pungent post-digestive)"
+    },
+    "cultivation": {
+      "climate": "Hot and humid tropical; 1500\u20132500mm rainfall",
+      "soil": "Laterite clay to well-drained loamy soil; slightly acidic",
+      "watering": "High moisture requirement",
+      "sunlight": "Partial shade; grows as a vine on trees",
+      "propagation": "Stem cuttings from mature vines",
+      "harvesting": "Berries harvested 6\u20138 months after flowering"
+    },
+    "habitat": "Native to Malabar Coast, Kerala, India; now cultivated in Vietnam, Indonesia",
+    "safety_notes": "May cause burning sensation in gastric conditions. Avoid high doses if you have peptic ulcers. Piperine can alter the pharmacokinetics of medications significantly \u2014 inform your doctor. For educational purposes only.",
+    "tags": [
+      "spice",
+      "digestive",
+      "bioavailability",
+      "piperine",
+      "respiratory",
+      "king-of-spices"
+    ],
+    "image_url": "/images/herbs/17.jpg"
+  },
+  {
+    "id": 18,
+    "name": "Cumin",
+    "common_name": "Jeera / Cumin",
+    "scientific_name": "Cuminum cyminum",
+    "sanskrit_name": "Jiraka",
+    "hindi_name": "Jeera",
+    "gujarati_name": "Jeeru",
+    "botanical_family": "Apiaceae",
+    "description": "Cumin is a slender annual herb with thread-like leaves and small white or pink flowers. The seeds (technically fruits) are the medicinal and culinary part. Cuminaldehyde and other volatile oils give it its distinctive aroma. In Ayurveda, Jiraka is a classic digestive and carminative herb used in formulations like Jeerakadyarishta.",
+    "traditional_uses": [
+      "Digestive health \u2013 relieves bloating, gas, and indigestion",
+      "Lactation support \u2013 increases breast milk production",
+      "Iron supplement \u2013 rich in iron for anemia",
+      "Anti-diabetic \u2013 regulates blood sugar",
+      "Carminative \u2013 relieves flatulence and colic",
+      "Weight management",
+      "Antimicrobial properties"
+    ],
+    "plant_parts_used": [
+      "Seeds (fruits)",
+      "Essential oil"
+    ],
+    "dosha": {
+      "balances": [
+        "Vata",
+        "Kapha"
+      ],
+      "may_aggravate": [
+        "Pitta (mildly)"
+      ],
+      "rasa": "Katu (pungent), Tikta (bitter)",
+      "virya": "Ushna (hot potency)",
+      "vipaka": "Katu (pungent post-digestive)"
+    },
+    "cultivation": {
+      "climate": "Semi-arid, hot dry climate; cool winters",
+      "soil": "Sandy loam, well-drained; drought tolerant",
+      "watering": "Low water requirement",
+      "sunlight": "Full sun",
+      "propagation": "Direct seeding in November\u2013December",
+      "harvesting": "120\u2013140 days after sowing"
+    },
+    "habitat": "Native to Egypt and the Eastern Mediterranean; major production in India (Rajasthan, Gujarat)",
+    "safety_notes": "Generally very safe. May slow blood clotting \u2014 avoid large amounts before surgery. Possible allergy in those sensitive to the Apiaceae family. For educational purposes only.",
+    "tags": [
+      "digestive",
+      "carminative",
+      "iron",
+      "lactation",
+      "culinary",
+      "anti-diabetic"
+    ],
+    "image_url": "/images/herbs/18.jpg"
+  },
+  {
+    "id": 19,
+    "name": "Coriander",
+    "common_name": "Cilantro / Dhania",
+    "scientific_name": "Coriandrum sativum",
+    "sanskrit_name": "Dhanyaka",
+    "hindi_name": "Dhania",
+    "gujarati_name": "Kothmir (leaves) / Dhana (seeds)",
+    "botanical_family": "Apiaceae",
+    "description": "Coriander is an aromatic annual herb where both leaves (cilantro) and seeds are used medicinally and culinarily. The leaves have a fresh, citrusy aroma while seeds have a warm, spicy flavor. In Ayurveda, Dhanyaka (seeds) are particularly valued as a digestive, cooling, and detoxifying herb.",
+    "traditional_uses": [
+      "Digestive cooling herb \u2013 relieves burning sensation in gut",
+      "Diuretic \u2013 supports kidney function",
+      "Anti-diabetic \u2013 reduces blood sugar",
+      "Heavy metal chelation \u2013 helps remove heavy metals from body",
+      "Antimicrobial \u2013 especially against food-borne pathogens",
+      "Cholesterol management",
+      "Eye health \u2013 antimicrobial eye wash"
+    ],
+    "plant_parts_used": [
+      "Seeds",
+      "Leaves (fresh)",
+      "Roots"
+    ],
+    "dosha": {
+      "balances": [
+        "Pitta",
+        "Kapha"
+      ],
+      "may_aggravate": [
+        "Vata (mildly in excess)"
+      ],
+      "rasa": "Tikta (bitter), Katu (pungent)",
+      "virya": "Sheeta (seeds are cooling)",
+      "vipaka": "Madhura (sweet post-digestive)"
+    },
+    "cultivation": {
+      "climate": "Cool season; 17\u201327\u00b0C optimal; dislikes extreme heat",
+      "soil": "Sandy loam to loam; well-drained; moderately fertile",
+      "watering": "Moderate; avoid water stress during flowering",
+      "sunlight": "Full sun to partial shade",
+      "propagation": "Direct seeding",
+      "harvesting": "Leaves: 30\u201340 days; Seeds: 90\u2013100 days"
+    },
+    "habitat": "Native to southwestern Asia and Mediterranean; widely cultivated globally",
+    "safety_notes": "Some people have a genetic variant causing coriander leaves to taste soapy. Possible allergy in Apiaceae-sensitive individuals. Generally very safe in culinary amounts. For educational purposes only.",
+    "tags": [
+      "digestive",
+      "cooling",
+      "diuretic",
+      "anti-diabetic",
+      "culinary",
+      "detox"
+    ],
+    "image_url": "/images/herbs/19.jpg"
+  },
+  {
+    "id": 20,
+    "name": "Hibiscus",
+    "common_name": "Roselle / Shoe Flower",
+    "scientific_name": "Hibiscus rosa-sinensis",
+    "sanskrit_name": "Japakusuma",
+    "hindi_name": "Gurhal",
+    "gujarati_name": "Jasud",
+    "botanical_family": "Malvaceae",
+    "description": "Hibiscus is a large, ornamental shrub with striking red flowers. The flowers, leaves, and roots all have distinct medicinal applications. The deep red calyx of Hibiscus sabdariffa (Roselle) is widely used to make herbal teas with potent antioxidant properties. In Ayurveda, Japakusuma is used primarily for hair, skin, and heart health.",
+    "traditional_uses": [
+      "Hair health \u2013 prevents hair fall, conditions hair, reduces dandruff",
+      "Blood pressure management \u2013 clinical evidence for antihypertensive effect",
+      "Cholesterol reduction",
+      "Liver protection \u2013 hepatoprotective antioxidants",
+      "Menstrual regulation \u2013 emmenagogue properties",
+      "Skin care \u2013 brightens skin, reduces inflammation",
+      "Antioxidant-rich herbal tea"
+    ],
+    "plant_parts_used": [
+      "Flowers",
+      "Leaves",
+      "Roots",
+      "Calyces (for tea)"
+    ],
+    "dosha": {
+      "balances": [
+        "Pitta",
+        "Vata"
+      ],
+      "may_aggravate": [
+        "Kapha (mildly)"
+      ],
+      "rasa": "Kashaya (astringent), Madhura (sweet)",
+      "virya": "Sheeta (cooling potency)",
+      "vipaka": "Madhura (sweet post-digestive)"
+    },
+    "cultivation": {
+      "climate": "Tropical and subtropical; frost-sensitive",
+      "soil": "Well-drained, loamy, slightly acidic to neutral soil",
+      "watering": "Regular; water stress reduces flowering",
+      "sunlight": "Full sun (minimum 6 hours)",
+      "propagation": "Stem cuttings or seeds",
+      "harvesting": "Flowers harvested when fully open; year-round in tropics"
+    },
+    "habitat": "Native to tropical Asia; widely cultivated as ornamental and medicinal plant worldwide",
+    "safety_notes": "May lower blood pressure \u2014 monitor if on antihypertensive medications. Avoid during pregnancy (emmenagogue and possible uterotonic effects). May interfere with hormonal medications. For educational purposes only.",
+    "tags": [
+      "hair",
+      "blood-pressure",
+      "antioxidant",
+      "skin",
+      "cholesterol",
+      "ornamental"
+    ],
+    "image_url": "/images/herbs/20.jpg"
+  }
+]

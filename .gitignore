@@ -1,0 +1,37 @@
+# Frontend & Node dependencies
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+frontend/.vite/
+
+# Python & Backend virtualenv / cache
+backend/venv/
+backend/env/
+backend/.venv/
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment & Secrets
+backend/.env
+.env
+*.env
+
+# HuggingFace Cache, Datasets & Old Checkpoints
+backend/model_cache/models--*
+backend/model_cache/.locks
+backend/model_cache/herb_model_finetuned.pth
+backend/dataset/
+backend/chroma_db/
+
+# Databases & Local Logs
+*.db
+*.sqlite3
+*.log
+
+# OS & IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

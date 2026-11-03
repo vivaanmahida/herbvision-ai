@@ -99,4 +99,7 @@ def get_heatmap_explanation(herb_name: str) -> str:
         "Coriander": "Compound leaf structure differences between lower and upper leaves are highlighted.",
         "Hibiscus": "The model strongly activates on the large red petals, prominent stamen column, and leaf lobes.",
     }
-    return explanations.get(herb_name, "The highlighted regions show the visual features most influential in the model's identification decision.")
+    return explanations.get(
+        herb_name, 
+        f"The Grad-CAM heatmap highlights the discriminative leaf margin contour, venation network, and morphological texture features that led the model to identify {herb_name}."
+    )

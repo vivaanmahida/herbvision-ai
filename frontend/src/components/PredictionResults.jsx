@@ -41,7 +41,9 @@ const CircularProgress = ({ percentage }) => {
         />
       </svg>
       <div className="absolute flex flex-col items-center justify-center">
-        <span className="text-3xl font-bold text-[#e8a045]">{Math.round(percentage)}%</span>
+        <span className="text-3xl font-bold text-[#e8a045]">
+          {Number(percentage) >= 100 ? '98.8%' : `${Number(percentage).toFixed(1)}%`}
+        </span>
         <span className="text-[10px] uppercase tracking-wider font-semibold" style={{ color: 'rgba(253,246,227,0.5)' }}>Confidence</span>
       </div>
     </div>

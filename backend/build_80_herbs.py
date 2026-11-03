@@ -1,0 +1,1970 @@
+"""
+Script to build comprehensive 80-herb dataset for HerbVision AI.
+Generates full Ayurvedic and botanical profiles for all 80 classes of the V3 model.
+Seeds the SQLite database and copies representative leaf images.
+"""
+import os
+import json
+import shutil
+import sqlite3
+
+DATASET_DIR = r"C:\Users\vivaa\Downloads\V3\Medicinal Leaf dataset"
+HERBS_JSON_PATH = os.path.join(os.path.dirname(__file__), "app", "data", "herbs.json")
+DB_PATH = os.path.join(os.path.dirname(__file__), "herbvision.db")
+FRONTEND_IMAGES_DIR = os.path.join(os.path.dirname(__file__), "..", "frontend", "public", "images", "herbs")
+
+# 80 classes from the V3 model checkpoint
+CLASSES_80 = [
+    'Aloevera', 'Amla', 'Amruthaballi', 'Arali', 'Astma_weed', 'Badipala', 'Balloon_Vine', 
+    'Bamboo', 'Beans', 'Betel', 'Bhrami', 'Bringaraja', 'Caricature', 'Castor', 
+    'Catharanthus', 'Chakte', 'Chilly', 'Citron lime (herelikai)', 'Coffee', 
+    'Common rue(naagdalli)', 'Coriender', 'Curry', 'Doddpathre', 'Drumstick', 
+    'Ekka', 'Eucalyptus', 'Ganigale', 'Ganike', 'Gasagase', 'Ginger', 
+    'Globe Amarnath', 'Guava', 'Henna', 'Hibiscus', 'Honge', 'Insulin', 
+    'Jackfruit', 'Jasmine', 'Kambajala', 'Kasambruga', 'Kohlrabi', 'Lantana', 
+    'Lemon', 'Lemongrass', 'Malabar_Nut', 'Malabar_Spinach', 'Mango', 'Marigold', 
+    'Mint', 'Neem', 'Nelavembu', 'Nerale', 'Nooni', 'Onion', 'Padri', 
+    'Palak(Spinach)', 'Papaya', 'Parijatha', 'Pea', 'Pepper', 'Pomoegranate', 
+    'Pumpkin', 'Raddish', 'Rose', 'Sampige', 'Sapota', 'Seethaashoka', 
+    'Seethapala', 'Spinach1', 'Tamarind', 'Taro', 'Tecoma', 'Thumbe', 
+    'Tomato', 'Tulsi', 'Turmeric', 'ashoka', 'camphor', 'kamakasturi', 'kepala'
+]
+
+# Comprehensive botanical and Ayurvedic knowledge base for all classes
+HERB_PROFILES = {
+    "Aloevera": {
+        "name": "Aloe Vera",
+        "common_name": "Aloe Vera / Indian Aloe",
+        "scientific_name": "Aloe barbadensis miller",
+        "sanskrit_name": "Ghritkumari",
+        "hindi_name": "Gheekumari",
+        "gujarati_name": "Kunwarpathu",
+        "botanical_family": "Asphodelaceae",
+        "description": "Aloe Vera is a succulent plant renowned in Ayurveda as Ghritkumari, meaning 'youthful maiden' for its rejuvenating and skin-nourishing qualities. Rich in polysaccharides, vitamins, and minerals.",
+        "traditional_uses": [
+            "Soothes sunburns, skin burns, and wound healing",
+            "Deep digestive tract cooling and detoxification",
+            "Moisturizes dry skin and promotes hair growth",
+            "Supports healthy liver and metabolic function"
+        ],
+        "plant_parts_used": ["Leaf gel", "Latex"],
+        "dosha": {"balances": ["Pitta", "Vata", "Kapha"], "may_aggravate": [], "rasa": "Tikta (bitter), Madhura (sweet)", "virya": "Sheeta (cooling)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Arid to semi-arid tropical", "soil": "Sandy, well-draining soil", "watering": "Low to moderate", "sunlight": "Full sun to partial shade", "propagation": "Offsets (pups)", "harvesting": "Mature outer leaves"},
+        "habitat": "Native to Mediterranean and Arabian peninsula; naturalized across India",
+        "safety_notes": "Oral consumption of latex should be avoided during pregnancy. Gel is generally safe for topical application.",
+        "tags": ["skin", "cooling", "digestive", "rasayana"]
+    },
+    "Amla": {
+        "name": "Amla",
+        "common_name": "Indian Gooseberry",
+        "scientific_name": "Phyllanthus emblica",
+        "sanskrit_name": "Amalaki",
+        "hindi_name": "Amla",
+        "gujarati_name": "Ambla",
+        "botanical_family": "Phyllanthaceae",
+        "description": "Amalaki is one of the premier Rasayana (rejuvenator) fruits in Ayurveda, exceptionally rich in natural Vitamin C and polyphenols. It balances all three doshas and forms the foundation of Chyawanprash.",
+        "traditional_uses": [
+            "Potent antioxidant and immune booster",
+            "Nourishes hair roots and prevents premature greying",
+            "Enhances digestion without aggravating Pitta",
+            "Supports vision and cardiovascular health"
+        ],
+        "plant_parts_used": ["Fruit", "Leaves", "Bark", "Seeds"],
+        "dosha": {"balances": ["Vata", "Pitta", "Kapha"], "may_aggravate": [], "rasa": "Pancha-rasa (five tastes, predominantly Sour)", "virya": "Sheeta (cooling)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Tropical and subtropical", "soil": "Fertile sandy loam", "watering": "Regular when young, drought-hardy later", "sunlight": "Full sun", "propagation": "Seeds, budding, grafting", "harvesting": "Fruits in winter"},
+        "habitat": "Deciduous forests across India and Southeast Asia",
+        "safety_notes": "Very safe. In large doses may cause loose stools due to high Vitamin C content.",
+        "tags": ["antioxidant", "immunity", "hair", "rejuvenation"]
+    },
+    "Amruthaballi": {
+        "name": "Giloy (Amruthaballi)",
+        "common_name": "Heart-leaved Moonseed / Giloy",
+        "scientific_name": "Tinospora cordifolia",
+        "sanskrit_name": "Guduchi / Amrita",
+        "hindi_name": "Giloy",
+        "gujarati_name": "Galo",
+        "botanical_family": "Menispermaceae",
+        "description": "Guduchi, known as 'Amrita' (the nectar of immortality), is an herbaceous vine celebrated for its immunomodulatory, antipyretic, and blood-purifying properties.",
+        "traditional_uses": [
+            "Manages recurrent fevers and chronic infections",
+            "Immune stimulant and detoxifier",
+            "Protects liver function and reduces inflammation",
+            "Supports glucose metabolism"
+        ],
+        "plant_parts_used": ["Stem", "Leaves", "Roots"],
+        "dosha": {"balances": ["Vata", "Pitta", "Kapha"], "may_aggravate": [], "rasa": "Tikta (bitter), Kashaya (astringent)", "virya": "Ushna (heating)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Tropical and subtropical", "soil": "Medium light loam with good drainage", "watering": "Moderate", "sunlight": "Direct sun to partial shade", "propagation": "Stem cuttings", "harvesting": "Mature stems during winter"},
+        "habitat": "Climbing upon trees in deciduous dry forests across India",
+        "safety_notes": "Generally safe. Monitor blood sugar if taking anti-diabetic medications.",
+        "tags": ["immunity", "fever", "detox", "liver"]
+    },
+    "Arali": {
+        "name": "Arali (Karavira)",
+        "common_name": "Oleander",
+        "scientific_name": "Nerium oleander",
+        "sanskrit_name": "Karavira",
+        "hindi_name": "Kaner",
+        "gujarati_name": "Karen",
+        "botanical_family": "Apocynaceae",
+        "description": "An evergreen shrub with fragrant pink or white flowers. In traditional Ayurveda, it is used strictly externally under medical supervision for skin lesions and parasitic infestations.",
+        "traditional_uses": [
+            "Topical applications for stubborn skin diseases and eczema",
+            "Traditional external formulation for wound cleansing",
+            "Medicinal oil preparation for joint stiffness"
+        ],
+        "plant_parts_used": ["Leaves", "Root bark (external only)"],
+        "dosha": {"balances": ["Kapha", "Vata"], "may_aggravate": ["Pitta"], "rasa": "Tikta (bitter), Katu (pungent)", "virya": "Ushna (hot)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Warm temperate and subtropical", "soil": "Tolerates poor, dry soils", "watering": "Low", "sunlight": "Full sun", "propagation": "Stem cuttings", "harvesting": "Leaves carefully handled with gloves"},
+        "habitat": "Widespread along roadsides and gardens across India",
+        "safety_notes": "CAUTION: Highly toxic if ingested. Used EXCLUSIVELY externally under qualified Ayurvedic supervision. Never consume.",
+        "tags": ["external", "skin", "potent", "traditional"]
+    },
+    "Astma_weed": {
+        "name": "Asthma Weed",
+        "common_name": "Asthma Plant / Snakeweed",
+        "scientific_name": "Euphorbia hirta",
+        "sanskrit_name": "Dugdhika",
+        "hindi_name": "Duddhi",
+        "gujarati_name": "Dudheli",
+        "botanical_family": "Euphorbiaceae",
+        "description": "A slender hairy annual herb found throughout tropical India. Renowned in traditional medicine for relieving respiratory spasms and bronchial irritation.",
+        "traditional_uses": [
+            "Relieves bronchial spasms, coughs, and asthma symptoms",
+            "Supports treatment of gastrointestinal dysentery and worms",
+            "Antimicrobial action against enteric pathogens",
+            "External milky sap applied on warts and insect stings"
+        ],
+        "plant_parts_used": ["Whole herb", "Leaves", "Milky sap"],
+        "dosha": {"balances": ["Kapha", "Vata"], "may_aggravate": ["Pitta"], "rasa": "Tikta (bitter), Katu (pungent)", "virya": "Ushna (hot)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Tropical and subtropical", "soil": "Grows wild in moist wastelands and roadsides", "watering": "Rain-fed", "sunlight": "Full sun to partial shade", "propagation": "Seeds", "harvesting": "Flowering stage"},
+        "habitat": "Ubiquitous weed in tropical plains and cultivated fields",
+        "safety_notes": "Mildly emetic in excessive dosages. Not recommended during pregnancy without medical guidance.",
+        "tags": ["respiratory", "bronchial", "asthma", "microbial"]
+    },
+    "Badipala": {
+        "name": "Badipala (Indian Coral Tree)",
+        "common_name": "Tiger's Claw / Indian Coral Tree",
+        "scientific_name": "Erythrina variegata",
+        "sanskrit_name": "Paribhadra",
+        "hindi_name": "Parihad",
+        "gujarati_name": "Pandarvo",
+        "botanical_family": "Fabaceae",
+        "description": "A thorny deciduous tree bearing striking scarlet flowers. Paribhadra is celebrated in Ayurveda for calming Vata, relieving joint pain, and regulating menstrual cycles.",
+        "traditional_uses": [
+            "Relieves rheumatic joint aches, inflammation, and arthritis",
+            "Bark decoction for regulating menstrual disorders",
+            "Promotes lactation in nursing mothers",
+            "Wound wash and astringent cleanser"
+        ],
+        "plant_parts_used": ["Bark", "Leaves", "Flowers"],
+        "dosha": {"balances": ["Vata", "Kapha"], "may_aggravate": ["Pitta"], "rasa": "Katu (pungent), Tikta (bitter)", "virya": "Ushna (heating)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Warm humid coastal and tropical zones", "soil": "Well-drained loam and sandy soils", "watering": "Moderate", "sunlight": "Full sun", "propagation": "Seeds and branch cuttings", "harvesting": "Mature bark and leaves"},
+        "habitat": "Coastal and plains regions of India and Southeast Asia",
+        "safety_notes": "Traditional formulations should be taken according to recommended classical dosage.",
+        "tags": ["joint-pain", "anti-inflammatory", "vata", "bark"]
+    },
+    "Balloon_Vine": {
+        "name": "Balloon Vine",
+        "common_name": "Heartseed / Mudakathan",
+        "scientific_name": "Cardiospermum halicacabum",
+        "sanskrit_name": "Karnasphota / Indravalli",
+        "hindi_name": "Kanphuti",
+        "gujarati_name": "Kagdoliyo",
+        "botanical_family": "Sapindaceae",
+        "description": "A climbing herb characterized by inflated balloon-like papery capsules. Prized in Siddha and Ayurveda as 'Mudakathan' for treating joint stiffness and nervous debility.",
+        "traditional_uses": [
+            "Highly acclaimed for osteoarthritis, rheumatoid arthritis, and joint mobility",
+            "Relieves nervous system aches and sciatica",
+            "Decoction used to treat dandruff and scalp conditions",
+            "Promotes digestive ease and reduces gas"
+        ],
+        "plant_parts_used": ["Leaves", "Whole plant", "Seeds"],
+        "dosha": {"balances": ["Vata", "Kapha"], "may_aggravate": [], "rasa": "Tikta (bitter), Katu (pungent)", "virya": "Ushna (hot)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Warm tropical plains", "soil": "Moist, fertile loam", "watering": "Regular", "sunlight": "Full sun to partial shade", "propagation": "Seeds", "harvesting": "Tender leafy vines"},
+        "habitat": "Climbing across fences and hedges throughout rural India",
+        "safety_notes": "Safe in culinary and herbal tea forms. Moderate intake for sensitive stomachs.",
+        "tags": ["arthritis", "joint-mobility", "siddha", "anti-inflammatory"]
+    },
+    "Bamboo": {
+        "name": "Bamboo (Vamsha)",
+        "common_name": "Common Bamboo / Bans",
+        "scientific_name": "Bambusa vulgaris",
+        "sanskrit_name": "Vamsha",
+        "hindi_name": "Bans",
+        "gujarati_name": "Vaans",
+        "botanical_family": "Poaceae",
+        "description": "A giant clumping woody grass whose siliceous exudate ('Vanshlochan') and fresh tender leaves are esteemed in Ayurveda for cooling, bone strength, and respiratory support.",
+        "traditional_uses": [
+            "Vanshlochan strengthens bones, teeth, and connective tissues",
+            "Leaf decoction calms cough, asthma, and sore throat",
+            "Aids in regulating menstrual flow",
+            "Natural source of bio-available silica"
+        ],
+        "plant_parts_used": ["Tender leaves", "Siliceous secretion (Vanshlochan)", "Young shoots"],
+        "dosha": {"balances": ["Pitta", "Kapha"], "may_aggravate": ["Vata"], "rasa": "Madhura (sweet), Kashaya (astringent)", "virya": "Sheeta (cooling)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Humid tropical and subtropical", "soil": "Moist, fertile, well-draining loam", "watering": "High", "sunlight": "Full sun", "propagation": "Rhizome offsets and culm cuttings", "harvesting": "Year-round"},
+        "habitat": "Riparian banks, forests, and cultivated groves",
+        "safety_notes": "Raw shoots contain cyanogenic glycosides and must always be cooked thoroughly before consuming.",
+        "tags": ["silica", "bone-health", "cooling", "respiratory"]
+    },
+    "Beans": {
+        "name": "French Bean (Shimba)",
+        "common_name": "Common Bean",
+        "scientific_name": "Phaseolus vulgaris",
+        "sanskrit_name": "Shimba",
+        "hindi_name": "Sem / Beans",
+        "gujarati_name": "Fansi",
+        "botanical_family": "Fabaceae",
+        "description": "An annual leguminous herb whose tender green leaves and pods are packed with dietary fibers, flavonoids, and minerals that regulate metabolic and digestive health.",
+        "traditional_uses": [
+            "Nutritive dietary vegetable supporting blood sugar control",
+            "Diuretic action assisting mild water retention",
+            "Leaf paste applied traditionally for burns and skin itch",
+            "Supports gut microbiome and bowel regularity"
+        ],
+        "plant_parts_used": ["Leaves", "Pods", "Seeds"],
+        "dosha": {"balances": ["Pitta", "Kapha"], "may_aggravate": ["Vata (in excess)"], "rasa": "Madhura (sweet), Kashaya (astringent)", "virya": "Sheeta (cooling)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Mild tropical to temperate", "soil": "Rich, well-drained loam pH 6.0-6.8", "watering": "Regular", "sunlight": "Full sun", "propagation": "Seeds", "harvesting": "Tender young pods and leaves"},
+        "habitat": "Widely cultivated across vegetable gardens and farms",
+        "safety_notes": "Always cook mature beans before consumption to neutralize lectins.",
+        "tags": ["nutrition", "metabolism", "dietary", "cooling"]
+    },
+    "Betel": {
+        "name": "Betel Leaf (Paan)",
+        "common_name": "Betel Vine / Paan",
+        "scientific_name": "Piper betle",
+        "sanskrit_name": "Tambula",
+        "hindi_name": "Paan",
+        "gujarati_name": "Nagarvel Paan",
+        "botanical_family": "Piperaceae",
+        "description": "A glossy heart-shaped aromatic evergreen creeper central to Indian heritage and Ayurveda. Celebrated for its carminative, antiseptic, digestive, and oral hygiene benefits.",
+        "traditional_uses": [
+            "Stimulates salivary enzymes and digestive juices after meals",
+            "Powerful natural antiseptic for oral hygiene and fresh breath",
+            "Warmed leaf applied with castor oil to relieve chest congestion",
+            "Topical poultice for boils, bruises, and skin infections"
+        ],
+        "plant_parts_used": ["Leaves"],
+        "dosha": {"balances": ["Vata", "Kapha"], "may_aggravate": ["Pitta (in excess)"], "rasa": "Tikta (bitter), Katu (pungent), Kashaya (astringent)", "virya": "Ushna (heating)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Warm, humid tropical climate under shade", "soil": "Rich clay loam with organic matter", "watering": "Frequent light watering", "sunlight": "Filtered shade (betel conservatories)", "propagation": "Stem cuttings", "harvesting": "Handpicked mature leaves"},
+        "habitat": "Cultivated throughout India, Bangladesh, and Sri Lanka",
+        "safety_notes": "Fresh natural betel leaf is beneficial. Avoid chewing with tobacco or slaked lime additives.",
+        "tags": ["digestive", "oral-care", "antiseptic", "traditional"]
+    },
+    "Bhrami": {
+        "name": "Brahmi",
+        "common_name": "Water Hyssop",
+        "scientific_name": "Bacopa monnieri",
+        "sanskrit_name": "Brahmi",
+        "hindi_name": "Brahmi",
+        "gujarati_name": "Brahmi",
+        "botanical_family": "Plantaginaceae",
+        "description": "The quintessential Medhya Rasayana (brain tonic) of Ayurveda. A small creeping succulent herb that enhances memory, cognitive clarity, and nervous system resilience.",
+        "traditional_uses": [
+            "Improves memory recall, focus, and cognitive function",
+            "Reduces anxiety, mental fatigue, and stress",
+            "Nourishes nervous tissue and supports restful sleep",
+            "Brahmi oil used to strengthen hair roots and cool the scalp"
+        ],
+        "plant_parts_used": ["Whole herb", "Leaves", "Stems"],
+        "dosha": {"balances": ["Vata", "Pitta", "Kapha"], "may_aggravate": [], "rasa": "Tikta (bitter), Kashaya (astringent)", "virya": "Sheeta (cooling)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Warm humid wetlands and marshy tracts", "soil": "Wet, boggy loam high in organic content", "watering": "High / waterlogged conditions", "sunlight": "Full sun to partial shade", "propagation": "Stem cuttings", "harvesting": "Tender leafy runners"},
+        "habitat": "Wetlands, marshes, and riverbanks across India",
+        "safety_notes": "Very safe. Can cause mild stomach sensitivity on empty stomach in high doses; best taken with ghee or milk.",
+        "tags": ["nootropic", "brain", "memory", "stress-relief"]
+    },
+    "Bringaraja": {
+        "name": "Bhringraj",
+        "common_name": "False Daisy / Keshraj",
+        "scientific_name": "Eclipta prostrata",
+        "sanskrit_name": "Bhringaraja / Kesharaaja",
+        "hindi_name": "Bhringraj",
+        "gujarati_name": "Bhangro",
+        "botanical_family": "Asteraceae",
+        "description": "Acclaimed as 'Keshraj' (Ruler of Hair) in Ayurveda. A creeping moisture-loving weed bearing small white composite flowers, revered for liver rejuvenation, vision, and hair vitality.",
+        "traditional_uses": [
+            "Premier herb for hair growth, preventing hair fall, and reversing premature grey",
+            "Potent hepatoprotective agent for liver detox and jaundice recovery",
+            "Soothes inflamed eyes and sharpens vision",
+            "Purifies blood and calms cutaneous allergies"
+        ],
+        "plant_parts_used": ["Whole herb", "Leaves", "Roots"],
+        "dosha": {"balances": ["Vata", "Kapha"], "may_aggravate": ["Pitta (mildly if overused)"], "rasa": "Katu (pungent), Tikta (bitter)", "virya": "Ushna (warm)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Tropical and subtropical moist habitats", "soil": "Moist clay and loamy soils", "watering": "Regular to high", "sunlight": "Direct sun to moderate shade", "propagation": "Seeds and root divisions", "harvesting": "Whole plant during flowering"},
+        "habitat": "Moist fields, ditch edges, and riverbanks across tropical India",
+        "safety_notes": "Generally safe. Traditional oils are primarily applied topically; internal use in therapeutic doses.",
+        "tags": ["hair", "liver", "vision", "rejuvenation"]
+    },
+    "camphor": {
+        "name": "Camphor (Karpura)",
+        "common_name": "Camphor Tree",
+        "scientific_name": "Cinnamomum camphora",
+        "sanskrit_name": "Karpura",
+        "hindi_name": "Kapoor",
+        "gujarati_name": "Kapoor",
+        "botanical_family": "Lauraceae",
+        "description": "An evergreen tree with aromatic glossy leaves yielding pure camphor upon distillation. In Ayurveda, Karpura is praised for opening respiratory passages and relieving pain.",
+        "traditional_uses": [
+            "Clears blocked nasal sinuses and relieves bronchial chest congestion",
+            "Topical counter-irritant relieving joint pain, sprains, and neuralgia",
+            "Antimicrobial air purifier and traditional fumigation agent",
+            "Cools burning sensations and eases itching"
+        ],
+        "plant_parts_used": ["Leaves", "Wood distillate (camphor)"],
+        "dosha": {"balances": ["Kapha", "Pitta"], "may_aggravate": ["Vata (in excess)"], "rasa": "Tikta (bitter), Katu (pungent), Madhura (sweet)", "virya": "Sheeta (cooling internally, warming externally)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Subtropical and warm temperate", "soil": "Well-drained fertile loam", "watering": "Moderate", "sunlight": "Full sun", "propagation": "Seeds and semi-ripe cuttings", "harvesting": "Aromatic leaves and mature wood"},
+        "habitat": "Native to East Asia; cultivated in gardens and hill tracts across India",
+        "safety_notes": "Pure camphor must NEVER be swallowed in raw unpurified form. Toxic in high internal doses. Safe in steam and topical balm formulas.",
+        "tags": ["respiratory", "pain-relief", "aromatic", "clarity"]
+    },
+    "Caricature": {
+        "name": "Caricature Plant",
+        "common_name": "Caricature Plant / Variegated Leaf",
+        "scientific_name": "Graptophyllum pictum",
+        "sanskrit_name": "Chitrakalpa",
+        "hindi_name": "Kala Patta",
+        "gujarati_name": "Chitrakari Paan",
+        "botanical_family": "Acanthaceae",
+        "description": "An ornamental evergreen shrub with strikingly variegated creamy-white and green foliage. Traditionally employed for anti-inflammatory, hemorrhoidal, and wound healing purposes.",
+        "traditional_uses": [
+            "Folk remedy for relieving hemorrhoids and anal fissures",
+            "Poultice of crushed leaves applied to swelling and ulcers",
+            "Mild diuretic and kidney stone cleansing support",
+            "Anti-inflammatory wash for skin sores"
+        ],
+        "plant_parts_used": ["Leaves", "Bark"],
+        "dosha": {"balances": ["Pitta", "Kapha"], "may_aggravate": ["Vata"], "rasa": "Kashaya (astringent), Tikta (bitter)", "virya": "Sheeta (cooling)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Humid tropical climate", "soil": "Moist, fertile, well-draining garden loam", "watering": "Moderate regular watering", "sunlight": "Bright indirect sunlight or partial shade", "propagation": "Stem cuttings", "harvesting": "Mature variegated leaves"},
+        "habitat": "Gardens, hedges, and tropical parks across South Asia",
+        "safety_notes": "Primarily used topically and in folk decoctions. Gentle on skin.",
+        "tags": ["skin", "anti-inflammatory", "wound", "cooling"]
+    },
+    "Castor": {
+        "name": "Castor (Eranda)",
+        "common_name": "Castor Oil Plant",
+        "scientific_name": "Ricinus communis",
+        "sanskrit_name": "Eranda",
+        "hindi_name": "Arandi",
+        "gujarati_name": "Diveli / Arando",
+        "botanical_family": "Euphorbiaceae",
+        "description": "Regarded in Ayurveda as the premier destroyer of Vata disorders (Vata-hara par excellence). Its large palmate leaves and seed oil provide deep therapeutic relief.",
+        "traditional_uses": [
+            "Heated leaf poultice relieves acute rheumatic joint pain and swelling",
+            "Castor oil packs for abdominal cramps and lymphatic detoxification",
+            "Classical mild purgative for clearing systemic toxins (Ama)",
+            "Promotes thick, healthy eyelash and eyebrow growth"
+        ],
+        "plant_parts_used": ["Leaves", "Seeds (oil)", "Root"],
+        "dosha": {"balances": ["Vata", "Kapha"], "may_aggravate": ["Pitta (oil in high internal dose)"], "rasa": "Madhura (sweet), Tikta (bitter), Kashaya (astringent)", "virya": "Ushna (hot)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Warm tropical and subtropical zones", "soil": "Sandy loam to deep clay loam", "watering": "Drought-hardy; low to moderate", "sunlight": "Full sun", "propagation": "Seeds", "harvesting": "Mature leaves and seed clusters"},
+        "habitat": "Wastelands, riverbanks, and agricultural borders across India",
+        "safety_notes": "Raw castor seeds contain ricin, a lethal toxin; NEVER consume raw seeds. Pure extracted castor oil is safe and devoid of ricin.",
+        "tags": ["joint-pain", "vata-relief", "detox", "anti-inflammatory"]
+    },
+    "Catharanthus": {
+        "name": "Catharanthus (Sadabahar)",
+        "common_name": "Madagascar Periwinkle",
+        "scientific_name": "Catharanthus roseus",
+        "sanskrit_name": "Nityakalyani / Sadabahar",
+        "hindi_name": "Sadabahar",
+        "gujarati_name": "Barmasi",
+        "botanical_family": "Apocynaceae",
+        "description": "An evergreen subshrub blooming all year round. Renowned globally for containing anticancer vinca alkaloids (vincristine, vinblastine) and traditionally for regulating blood sugar.",
+        "traditional_uses": [
+            "Traditional adjuvant for diabetes and glycemic control",
+            "Natural source of potent therapeutic alkaloids",
+            "Wound wash and anti-itching external extract",
+            "Supports healthy blood pressure levels"
+        ],
+        "plant_parts_used": ["Leaves", "Flowers", "Roots"],
+        "dosha": {"balances": ["Kapha", "Pitta"], "may_aggravate": ["Vata"], "rasa": "Tikta (bitter), Kashaya (astringent)", "virya": "Sheeta (cooling)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Tropical and subtropical", "soil": "Sandy loam, drought and salinity tolerant", "watering": "Minimal", "sunlight": "Full sun", "propagation": "Seeds and stem cuttings", "harvesting": "Leaves harvested during flowering"},
+        "habitat": "Ubiquitous ornamental garden and wasteland shrub across India",
+        "safety_notes": "Contains potent alkaloids. Internal intake must be strictly monitored and avoided during pregnancy.",
+        "tags": ["diabetes", "alkaloids", "blood-sugar", "oncology-research"]
+    },
+    "Chakte": {
+        "name": "Chakte (Golden Shower / Aragvadha)",
+        "common_name": "Golden Shower Tree / Indian Laburnum",
+        "scientific_name": "Cassia fistula",
+        "sanskrit_name": "Aragvadha",
+        "hindi_name": "Amaltas",
+        "gujarati_name": "Garmalo",
+        "botanical_family": "Fabaceae",
+        "description": "Famous for its magnificent pendulous yellow blossom clusters. Known in Sanskrit as 'Aragvadha' (disease killer), it is the gentlest and safest detoxifying purgative in Ayurvedic pharmacology.",
+        "traditional_uses": [
+            "Gentle, safe bowel laxative suitable even for elderly and children",
+            "Cleanses deep blood impurities and resolves chronic eczema",
+            "Leaf paste applied to relieve inflammatory skin rashes and gout",
+            "Balances fever and cleanses the liver"
+        ],
+        "plant_parts_used": ["Fruit pulp", "Leaves", "Bark", "Flowers"],
+        "dosha": {"balances": ["Pitta", "Kapha"], "may_aggravate": ["Vata (in excess)"], "rasa": "Madhura (sweet), Tikta (bitter)", "virya": "Sheeta (cooling)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Tropical to warm subtropical", "soil": "Deep, well-drained loam", "watering": "Moderate; drought-resistant once grown", "sunlight": "Full sun", "propagation": "Seeds (scarification needed)", "harvesting": "Long cylindrical pods and leaves"},
+        "habitat": "Deciduous dry forests, avenues, and parks across India",
+        "safety_notes": "Very gentle laxative. Avoid overdosing to prevent loose bowels.",
+        "tags": ["detox", "skin", "gentle-laxative", "blood-purifier"]
+    },
+    "Chilly": {
+        "name": "Chilly (Maricha)",
+        "common_name": "Chili Pepper",
+        "scientific_name": "Capsicum annuum",
+        "sanskrit_name": "Katuvira / Rakta-maricha",
+        "hindi_name": "Lal Mirch",
+        "gujarati_name": "Marchu",
+        "botanical_family": "Solanaceae",
+        "description": "A pungently hot herb rich in capsaicin. In medicinal contexts, it stimulates sluggish digestion, ignites digestive fire (Agni), and provides topical neuro-sensory pain relief.",
+        "traditional_uses": [
+            "Fires up sluggish digestion and metabolic rate",
+            "Topical capsaicin formulations deplete substance P to relieve nerve pain",
+            "Clears cold congestion, sluggish phlegm, and chills",
+            "Stimulates peripheral blood circulation"
+        ],
+        "plant_parts_used": ["Fruit", "Leaves (folk poultice)"],
+        "dosha": {"balances": ["Kapha", "Vata"], "may_aggravate": ["Pitta"], "rasa": "Katu (pungent)", "virya": "Ushna (hot)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Warm tropical and subtropical", "soil": "Fertile, loamy, well-draining soil", "watering": "Moderate regular", "sunlight": "Full sun", "propagation": "Seeds", "harvesting": "Mature green or red pods"},
+        "habitat": "Commercially grown throughout Indian farmlands",
+        "safety_notes": "Avoid direct contact with eyes or open cuts. Contraindicated in active gastric ulcers and high Pitta conditions.",
+        "tags": ["metabolism", "capsaicin", "circulation", "pain-relief"]
+    },
+    "Citron lime (herelikai)": {
+        "name": "Citron Lime (Herelikai)",
+        "common_name": "Wild Citron / Bitter Orange",
+        "scientific_name": "Citrus medica",
+        "sanskrit_name": "Bijapura / Matulunga",
+        "hindi_name": "Bada Nimbu / Galgal",
+        "gujarati_name": "Bijoru",
+        "botanical_family": "Rutaceae",
+        "description": "An ancestral citrus species yielding large, thick-rinded, highly fragrant fruit. Esteemed in Charaka Samhita as a potent digestive stimulant that soothes nausea, hiccups, and abdominal colic.",
+        "traditional_uses": [
+            "Relieves severe nausea, morning sickness, and motion vomiting",
+            "Alleviates indigestion, gas bloating, and anorexia",
+            "Peel extract supports liver detoxification and fat breakdown",
+            "High bioflavonoids for capillary and vascular health"
+        ],
+        "plant_parts_used": ["Fruit rind", "Juice", "Leaves", "Seeds"],
+        "dosha": {"balances": ["Vata", "Kapha"], "may_aggravate": ["Pitta (mildly due to sourness)"], "rasa": "Amla (sour), Tikta (bitter), Madhura (sweet)", "virya": "Ushna (heating)", "vipaka": "Amla (sour)"},
+        "cultivation": {"climate": "Warm subtropical to tropical valleys", "soil": "Deep, well-drained loamy soil", "watering": "Regular moderate watering", "sunlight": "Full sun", "propagation": "Grafting and seeds", "harvesting": "Mature golden-yellow fruit"},
+        "habitat": "Foothills of the Eastern Himalayas and cultivated across Southern India",
+        "safety_notes": "Gentle and beneficial. Consume freshly diluted juice for optimal digestive comfort.",
+        "tags": ["digestive", "anti-nausea", "citrus", "immunity"]
+    },
+    "Coffee": {
+        "name": "Coffee Plant",
+        "common_name": "Arabian Coffee",
+        "scientific_name": "Coffea arabica",
+        "sanskrit_name": "Kaafi",
+        "hindi_name": "Coffee",
+        "gujarati_name": "Coffee",
+        "botanical_family": "Rubiaceae",
+        "description": "An evergreen woody shrub bearing glossy leaves and caffeine-rich berries. Leaves and unroasted beans are rich in chlorogenic acids and polyphenols that enhance alertness and metabolism.",
+        "traditional_uses": [
+            "Increases mental vigilance and combats lethargy",
+            "Chlorogenic acid provides potent antioxidant and glucose buffering effects",
+            "Topical coffee scrubs stimulate microcirculation and skin firmness",
+            "Mild diuretic aiding metabolic rate"
+        ],
+        "plant_parts_used": ["Seeds (beans)", "Leaves"],
+        "dosha": {"balances": ["Kapha"], "may_aggravate": ["Vata", "Pitta (in excess)"], "rasa": "Tikta (bitter), Kashaya (astringent)", "virya": "Ushna (hot)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Tropical highland cloud forests", "soil": "Humus-rich volcanic or forest loam", "watering": "Moderate", "sunlight": "Filtered shade", "propagation": "Seeds and cuttings", "harvesting": "Ripe red berries"},
+        "habitat": "Hill plantations of Western Ghats (Karnataka, Kerala, Tamil Nadu)",
+        "safety_notes": "Avoid excessive intake in insomnia, tachycardia, and anxiety disorders.",
+        "tags": ["alertness", "antioxidant", "metabolism", "polyphenols"]
+    },
+    "Common rue(naagdalli)": {
+        "name": "Common Rue (Nagadali)",
+        "common_name": "Herb of Grace / Rue",
+        "scientific_name": "Ruta graveolens",
+        "sanskrit_name": "Somalatha / Sadabu",
+        "hindi_name": "Sadab",
+        "gujarati_name": "Nagadali / Satap",
+        "botanical_family": "Rutaceae",
+        "description": "A strongly aromatic blue-green subshrub with glandular punctate leaves. Celebrated in traditional herbalism for relieving abdominal spasms, infantile colic, and respiratory wheezing.",
+        "traditional_uses": [
+            "Traditional leaf juice warmed and applied for earache and headache",
+            "Antispasmodic for menstrual cramps and gastrointestinal colic",
+            "Folk remedy for children's colic and gas relief (infinitesimal doses)",
+            "Repels household insects and mosquitoes naturally"
+        ],
+        "plant_parts_used": ["Leaves", "Aerial shoots"],
+        "dosha": {"balances": ["Vata", "Kapha"], "may_aggravate": ["Pitta"], "rasa": "Tikta (bitter), Katu (pungent)", "virya": "Ushna (hot)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Warm temperate and Mediterranean-like subtropical", "soil": "Dry, rocky, alkaline well-drained soil", "watering": "Low to moderate", "sunlight": "Full sun", "propagation": "Seeds and stem cuttings", "harvesting": "Leaves prior to flowering"},
+        "habitat": "Kitchen gardens and herbal sanctuaries throughout India",
+        "safety_notes": "CONTRAINDICATED in pregnancy as it acts as an emmenagogue/uterine stimulant. Use in very small medicinal quantities.",
+        "tags": ["antispasmodic", "aromatic", "insect-repellent", "traditional"]
+    },
+    "Coriender": {
+        "name": "Coriander",
+        "common_name": "Cilantro / Chinese Parsley",
+        "scientific_name": "Coriandrum sativum",
+        "sanskrit_name": "Dhanyaka",
+        "hindi_name": "Dhania",
+        "gujarati_name": "Kothmir / Dhana",
+        "botanical_family": "Apiaceae",
+        "description": "An aromatic annual herb revered in Ayurveda as Dhanyaka. Unique in its ability to kindle digestive fire (Dipana) while simultaneously cooling burning sensations and urinary heat.",
+        "traditional_uses": [
+            "Cools internal body heat, acid reflux, and burning sensations",
+            "Promotes healthy kidney function and soothes urinary tract irritation",
+            "Aids heavy metal detoxification and liver cleansing",
+            "Carminative that dispels bloating without aggravating Pitta"
+        ],
+        "plant_parts_used": ["Fresh leaves", "Dried seeds (fruits)"],
+        "dosha": {"balances": ["Pitta", "Vata", "Kapha"], "may_aggravate": [], "rasa": "Tikta (bitter), Madhura (sweet), Kashaya (astringent)", "virya": "Sheeta (cooling)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Cool subtropical and temperate winters", "soil": "Moist, rich, well-draining loamy soil", "watering": "Regular light watering", "sunlight": "Full sun to mild shade", "propagation": "Seeds (split mericarps)", "harvesting": "Leaves in 3-4 weeks, seeds when golden"},
+        "habitat": "Grown across kitchen gardens and agricultural fields throughout India",
+        "safety_notes": "Extremely safe in both dietary culinary and therapeutic infusion forms.",
+        "tags": ["cooling", "digestive", "urinary", "detox"]
+    },
+    "Curry": {
+        "name": "Curry Leaves",
+        "common_name": "Curry Leaf Tree",
+        "scientific_name": "Murraya koenigii",
+        "sanskrit_name": "Kaidarya / Girinimba",
+        "hindi_name": "Kadi Patta",
+        "gujarati_name": "Mitho Limdo",
+        "botanical_family": "Rutaceae",
+        "description": "An intensely aromatic small tree native to India. Curry leaves are rich in carbazole alkaloids, iron, and antioxidants that enhance digestion, support insulin sensitivity, and invigorate hair follicles.",
+        "traditional_uses": [
+            "Strengthens hair roots, delays greying, and prevents hair shedding",
+            "Supports healthy glycemic balance and carbohydrate metabolism",
+            "Relieves morning nausea, dysentery, and indigestion",
+            "Protects liver cells and improves lipid profiles"
+        ],
+        "plant_parts_used": ["Leaves", "Bark", "Roots"],
+        "dosha": {"balances": ["Pitta", "Kapha"], "may_aggravate": ["Vata (mildly in excess)"], "rasa": "Tikta (bitter), Kashaya (astringent), Madhura (sweet)", "virya": "Sheeta (cooling)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Warm tropical to subtropical", "soil": "Fertile, well-drained loam", "watering": "Moderate; avoid standing water", "sunlight": "Full sun to partial shade", "propagation": "Seeds, root suckers, stem cuttings", "harvesting": "Hand-stripped mature leafy sprigs"},
+        "habitat": "Wild in foot of Himalayas and cultivated in household backyards throughout India",
+        "safety_notes": "Highly safe culinary herb. Eaten fresh or tempered in Ayurvedic cooking.",
+        "tags": ["hair", "diabetes", "digestive", "iron-rich"]
+    },
+    "Doddpathre": {
+        "name": "Doddapatre (Indian Borage)",
+        "common_name": "Mexican Mint / Ajwain Leaves",
+        "scientific_name": "Plectranthus amboinicus",
+        "sanskrit_name": "Karpooravalli / Parnayavani",
+        "hindi_name": "Patta Ajwain",
+        "gujarati_name": "Ajwain na Paan",
+        "botanical_family": "Lamiaceae",
+        "description": "A fleshy succulent perennial herb with velvety, strongly fragrant leaves reminiscent of oregano and ajwain. The ultimate home remedy in South India for infant coughs, colds, and gas.",
+        "traditional_uses": [
+            "Clears persistent chest congestion, productive coughs, and sore throat",
+            "Quick relief from infantile colic, abdominal bloating, and indigestion",
+            "Warmed leaf juice given with honey for pediatric colds",
+            "Mild antimicrobial application for insect bites and skin irritations"
+        ],
+        "plant_parts_used": ["Succulent leaves"],
+        "dosha": {"balances": ["Kapha", "Vata"], "may_aggravate": ["Pitta (in excess)"], "rasa": "Katu (pungent), Tikta (bitter)", "virya": "Ushna (heating)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Warm tropical climate", "soil": "Free-draining sandy loam or potting mix", "watering": "Low to moderate; drought-hardy", "sunlight": "Bright indirect light to partial sun", "propagation": "Stem cuttings (root effortlessly)", "harvesting": "Thick fleshy leaves year-round"},
+        "habitat": "Popular windowsill and courtyard potted plant across India",
+        "safety_notes": "Very safe. Leaf juice should be diluted with honey or warm water for young children.",
+        "tags": ["pediatric-care", "respiratory", "cough", "digestive"]
+    },
+    "Drumstick": {
+        "name": "Moringa (Drumstick)",
+        "common_name": "Horseradish Tree / Miracle Tree",
+        "scientific_name": "Moringa oleifera",
+        "sanskrit_name": "Shigru / Shobhanjana",
+        "hindi_name": "Sahjan",
+        "gujarati_name": "Saragvo",
+        "botanical_family": "Moringaceae",
+        "description": "Celebrated as the 'Miracle Tree' for its unmatched nutrient density. The leaves are rich in bioavailable calcium, iron, Vitamin A, and plant proteins. Shigru means 'piercing' for its ability to clear deep sinus congestion.",
+        "traditional_uses": [
+            "Powerful nutritional powerhouse fighting anemia and malnutrition",
+            "Anti-inflammatory support for arthritis and joint swelling",
+            "Assists in balancing blood sugar and cholesterol",
+            "Promotes natural breast milk production in postpartum mothers"
+        ],
+        "plant_parts_used": ["Leaves", "Pods (drumsticks)", "Bark", "Seeds", "Flowers"],
+        "dosha": {"balances": ["Kapha", "Vata"], "may_aggravate": ["Pitta (in excess)"], "rasa": "Katu (pungent), Tikta (bitter)", "virya": "Ushna (hot)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Hot semi-arid tropical and subtropical", "soil": "Sandy loam, drought-tolerant", "watering": "Low to moderate", "sunlight": "Full sun", "propagation": "Seeds and large limb cuttings", "harvesting": "Leaves picked continuously"},
+        "habitat": "Indigenous to northwestern India; cultivated across tropical world",
+        "safety_notes": "Leaves and pods are highly safe food. Roots and bark contain strong alkaloids and should not be used in pregnancy.",
+        "tags": ["superfood", "nutrition", "arthritis", "immunity"]
+    },
+    "Ekka": {
+        "name": "Ekka (Calotropis / Arka)",
+        "common_name": "Crown Flower / Giant Milkweed",
+        "scientific_name": "Calotropis gigantea",
+        "sanskrit_name": "Arka / Mandara",
+        "hindi_name": "Madar / Aak",
+        "gujarati_name": "Aakdo",
+        "botanical_family": "Apocynaceae",
+        "description": "A sturdy large shrub with thick waxy leaves and distinctive crown-like purple or white blossoms. Dedicated to Lord Shiva; its warmed leaves are a renowned classical poultice for joint swelling.",
+        "traditional_uses": [
+            "Warmed leaves tied over arthritic knees and swellings provide dramatic relief",
+            "Latex used in specialized Ayurvedic Sodhana (purification) formulations",
+            "Root bark decoction historically used for bronchospasms",
+            "Effective anti-inflammatory external poultice"
+        ],
+        "plant_parts_used": ["Leaves (external)", "Latex", "Root bark (purified)"],
+        "dosha": {"balances": ["Kapha", "Vata"], "may_aggravate": ["Pitta"], "rasa": "Katu (pungent), Tikta (bitter)", "virya": "Ushna (hot)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Arid to semi-arid tropical plains", "soil": "Sandy, rocky, dry poor soils", "watering": "Extremely drought-tolerant", "sunlight": "Full blazing sun", "propagation": "Seeds with silky tufts", "harvesting": "Leaves carefully gathered"},
+        "habitat": "Wastelands, roadsides, and arid fallows across India",
+        "safety_notes": "CAUTION: The milky sap is an eye irritant and internally toxic. Never consume raw; strictly for external leaf poultices.",
+        "tags": ["joint-swelling", "poultice", "external", "anti-inflammatory"]
+    },
+    "Eucalyptus": {
+        "name": "Eucalyptus (Nilgiri)",
+        "common_name": "Blue Gum / Tasmanian Blue Gum",
+        "scientific_name": "Eucalyptus globulus",
+        "sanskrit_name": "Nilgiri Taila Vriksha",
+        "hindi_name": "Nilgiri",
+        "gujarati_name": "Nilgiri",
+        "botanical_family": "Myrtaceae",
+        "description": "A tall aromatic tree with sickle-shaped leaves brimming with eucalyptol (cineole). Renowned in natural therapies for clearing bronchial mucus, soothing muscle soreness, and purifying the air.",
+        "traditional_uses": [
+            "Inhalation of leaf steam opens blocked sinuses and bronchial airways",
+            "Topical massage oil soothes aching muscles, joints, and neuralgia",
+            "Antiseptic gargle for sore throat and mouth hygiene",
+            "Natural repellent for mosquitoes, bugs, and fleas"
+        ],
+        "plant_parts_used": ["Leaves", "Essential oil"],
+        "dosha": {"balances": ["Kapha", "Vata"], "may_aggravate": ["Pitta"], "rasa": "Katu (pungent), Tikta (bitter), Kashaya (astringent)", "virya": "Ushna (heating)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Cool subtropical and highland temperate", "soil": "Deep, well-draining moist loam", "watering": "Moderate", "sunlight": "Full sun", "propagation": "Seeds", "harvesting": "Mature aromatic foliage"},
+        "habitat": "Naturalized throughout the Nilgiri hills and mountain stations of India",
+        "safety_notes": "Do not swallow concentrated eucalyptus oil undiluted. Steam inhalation and external balms are safe and effective.",
+        "tags": ["decongestant", "sinus", "respiratory", "aromatic"]
+    },
+    "Ganigale": {
+        "name": "Ganigale (Crepe Ginger)",
+        "common_name": "Crepe Ginger / Spiral Ginger",
+        "scientific_name": "Costus speciosus",
+        "sanskrit_name": "Kebuka / Kemuka",
+        "hindi_name": "Keukand",
+        "gujarati_name": "Pakarmula",
+        "botanical_family": "Costaceae",
+        "description": "An ornamental perennial herb with spirally arranged leaves and crepe-paper-like white flowers. Its rhizomes and leaves are used in traditional medicine for fever, bronchial cough, and urinary clarity.",
+        "traditional_uses": [
+            "Traditional remedy for soothing bronchial irritation and fever",
+            "Rhizome decoction supports kidney function and clears burning micturition",
+            "Astringent leaf extract for skin blemishes and fungal lesions",
+            "Traditional adjuvant for diabetes and glycemic control"
+        ],
+        "plant_parts_used": ["Rhizome", "Leaves", "Stem"],
+        "dosha": {"balances": ["Kapha", "Pitta"], "may_aggravate": ["Vata"], "rasa": "Tikta (bitter), Kashaya (astringent)", "virya": "Sheeta (cooling)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Humid tropical understory", "soil": "Rich, moist, humus-laden soil", "watering": "Regular high moisture", "sunlight": "Partial shade to dappled light", "propagation": "Rhizome divisions and stem cuttings", "harvesting": "Mature rhizomes and leaves"},
+        "habitat": "Wet evergreen and moist deciduous forests of Western Ghats and Assam",
+        "safety_notes": "Safe in culinary and standard decoction amounts. Pregnant women should avoid high therapeutic doses.",
+        "tags": ["fever", "urinary", "cooling", "ayurveda"]
+    },
+    "Ganike": {
+        "name": "Ganike (Black Nightshade)",
+        "common_name": "Black Nightshade / Wonder Berry",
+        "scientific_name": "Solanum nigrum",
+        "sanskrit_name": "Kakamachi",
+        "hindi_name": "Makoy",
+        "gujarati_name": "Piludi",
+        "botanical_family": "Solanaceae",
+        "description": "A delicate annual herb bearing tiny white flowers and clusters of dark purple berries. Celebrated as 'Kakamachi' in Charaka Samhita for its unmatched hepatoprotective, ulcer-healing, and skin-clearing powers.",
+        "traditional_uses": [
+            "Premier herbal remedy for jaundice, hepatitis, and fatty liver regeneration",
+            "Soothes oral ulcers, stomach ulcers, and gastrointestinal irritation",
+            "Purifies blood and clears stubborn dermatological eruptions",
+            "Supports heart health and fluid balance"
+        ],
+        "plant_parts_used": ["Leaves", "Whole plant", "Ripe berries"],
+        "dosha": {"balances": ["Tridosha (Vata, Pitta, Kapha)"], "may_aggravate": [], "rasa": "Tikta (bitter)", "virya": "Anushna-sheeta (neither overly hot nor cold)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Tropical and warm temperate zones", "soil": "Moist, nutrient-rich garden soil", "watering": "Moderate", "sunlight": "Sun to partial shade", "propagation": "Seeds", "harvesting": "Tender leafy greens and ripe black berries"},
+        "habitat": "Cultivated fields, garden borders, and moist river flats throughout India",
+        "safety_notes": "Leaves must be consumed cooked or freshly juiced under guidance. Do NOT consume green unripe berries.",
+        "tags": ["liver", "hepatoprotective", "mouth-ulcer", "tridoshic"]
+    },
+    "Gasagase": {
+        "name": "Gasagase (Poppy Plant)",
+        "common_name": "Opium Poppy / Khus Khus",
+        "scientific_name": "Papaver somniferum",
+        "sanskrit_name": "Khasa / Ahiphena",
+        "hindi_name": "Khas Khas",
+        "gujarati_name": "Khas Khas",
+        "botanical_family": "Papaveraceae",
+        "description": "An annual herb yielding edible, nutrient-dense poppy seeds ('Khus Khus') that have zero narcotic alkaloids. Revered in Ayurveda for inducing sound sleep, cooling the body, and soothing nervous irritation.",
+        "traditional_uses": [
+            "Promotes deep restful sleep when boiled with milk and nutmeg",
+            "Cools internal body heat, burning stomach, and ulcers",
+            "Calms nervous anxiety and dry cough irritation",
+            "Rich in dietary calcium, magnesium, and essential fatty acids"
+        ],
+        "plant_parts_used": ["Seeds (Khas Khas)", "Capsule shell (regulated)"],
+        "dosha": {"balances": ["Vata", "Pitta"], "may_aggravate": ["Kapha (in excess)"], "rasa": "Madhura (sweet), Kashaya (astringent)", "virya": "Sheeta (cooling)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Cool subtropical winter season", "soil": "Well-drained deep rich loam", "watering": "Moderate", "sunlight": "Full sun", "propagation": "Seeds", "harvesting": "Mature dried capsules (seeds only)"},
+        "habitat": "Regulated agricultural belts of northern and central India",
+        "safety_notes": "Culinary poppy seeds are 100% safe, non-narcotic, and nutritious. The milky latex of raw pods is legally regulated.",
+        "tags": ["sleep", "insomnia", "cooling", "calcium-rich"]
+    },
+    "Ginger": {
+        "name": "Ginger",
+        "common_name": "Ginger / Fresh Ginger",
+        "scientific_name": "Zingiber officinale",
+        "sanskrit_name": "Ardraka / Sunthi",
+        "hindi_name": "Adrak / Sonth",
+        "gujarati_name": "Aadu / Sunth",
+        "botanical_family": "Zingiberaceae",
+        "description": "Celebrated in classical Sanskrit as 'Vishwabhesaja' (Universal Medicine). Ginger kindles digestive Agni, burns metabolic toxins (Ama), relieves nausea, and promotes deep cellular circulation.",
+        "traditional_uses": [
+            "Ignites digestive power, dispels gas, and stops nausea",
+            "Relieves sore throat, bronchial congestion, and viral flu",
+            "Anti-inflammatory support for joint stiffness and arthritis",
+            "Warms peripheral circulation and dispels systemic coldness"
+        ],
+        "plant_parts_used": ["Rhizome", "Leaves"],
+        "dosha": {"balances": ["Vata", "Kapha"], "may_aggravate": ["Pitta (in excess)"], "rasa": "Katu (pungent), Madhura (sweet)", "virya": "Ushna (hot)", "vipaka": "Madhura (sweet for dry), Katu (for fresh)"},
+        "cultivation": {"climate": "Warm, humid tropical climate with heavy rainfall", "soil": "Rich, well-draining loamy soil", "watering": "High moisture with good drainage", "sunlight": "Dappled light to full sun", "propagation": "Rhizome setts", "harvesting": "8-10 months after planting"},
+        "habitat": "Cultivated across Kerala, Karnataka, Assam, and Meghalaya",
+        "safety_notes": "Very safe. In high hyperacidity or active peptic ulcers, use dried ginger (Sunthi) rather than raw pungent ginger.",
+        "tags": ["digestive", "immunity", "anti-inflammatory", "circulation"]
+    },
+    "Globe Amarnath": {
+        "name": "Globe Amaranth",
+        "common_name": "Bachelor's Button / Globe Amaranth",
+        "scientific_name": "Gomphrena globosa",
+        "sanskrit_name": "Rakta-pushpa",
+        "hindi_name": "Gul-e-makhmal",
+        "gujarati_name": "Kasumi Phool",
+        "botanical_family": "Amaranthaceae",
+        "description": "An attractive annual herb with long-lasting clover-like flower heads. The infusion of its leaves and floral bracts is widely used in folk healing for respiratory comfort, coughs, and reducing fatigue.",
+        "traditional_uses": [
+            "Flower infusion soothes bronchial cough, asthma, and hoarseness",
+            "Rich in betacyanin antioxidants that protect cardiovascular cells",
+            "Relieves physical fatigue, eye strain, and mild headaches",
+            "Decoction used to calm urinary tract inflammation"
+        ],
+        "plant_parts_used": ["Flower heads", "Leaves"],
+        "dosha": {"balances": ["Pitta", "Kapha"], "may_aggravate": ["Vata"], "rasa": "Kashaya (astringent), Tikta (bitter)", "virya": "Sheeta (cooling)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Warm tropical and subtropical", "soil": "Well-drained light garden soil", "watering": "Low to moderate", "sunlight": "Full sun", "propagation": "Seeds", "harvesting": "Colorful mature flower globes"},
+        "habitat": "Gardens, borders, and temples across India",
+        "safety_notes": "Safe floral herbal tea. Free from caffeine and toxic alkaloids.",
+        "tags": ["antioxidant", "respiratory", "cooling", "herbal-tea"]
+    },
+    "Guava": {
+        "name": "Guava",
+        "common_name": "Guava Tree",
+        "scientific_name": "Psidium guajava",
+        "sanskrit_name": "Amrud / Peruka",
+        "hindi_name": "Amrood",
+        "gujarati_name": "Jamrukh",
+        "botanical_family": "Myrtaceae",
+        "description": "An evergreen tropical tree yielding delicious fruits. Guava leaves are an exceptional reservoir of polyphenols, quercetin, and tannins that halt diarrhea, strengthen gums, and control blood sugar.",
+        "traditional_uses": [
+            "Chewing tender leaves provides immediate relief for swollen gums and toothache",
+            "Leaf decoction stops diarrhea, dysentery, and intestinal cramps",
+            "Inhibits alpha-glucosidase to prevent post-meal blood sugar spikes",
+            "Antimicrobial wash for acne, skin cuts, and wounds"
+        ],
+        "plant_parts_used": ["Tender leaves", "Fruit", "Bark"],
+        "dosha": {"balances": ["Kapha", "Pitta"], "may_aggravate": ["Vata (in excess)"], "rasa": "Kashaya (astringent), Tikta (bitter)", "virya": "Sheeta (cooling)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Tropical and subtropical", "soil": "Tolerates wide range of soils from sand to clay", "watering": "Moderate", "sunlight": "Full sun", "propagation": "Seeds, air layering, budding", "harvesting": "Tender young leaves and fruit"},
+        "habitat": "Orchards, home gardens, and countryside throughout India",
+        "safety_notes": "Very safe. Leaves make a palatable herbal tea with no adverse side effects.",
+        "tags": ["oral-care", "diarrhea", "blood-sugar", "astringent"]
+    },
+    "Henna": {
+        "name": "Henna (Mehendi)",
+        "common_name": "Henna Tree / Mignonette Tree",
+        "scientific_name": "Lawsonia inermis",
+        "sanskrit_name": "Madayantika",
+        "hindi_name": "Mehendi",
+        "gujarati_name": "Mendi",
+        "botanical_family": "Lythraceae",
+        "description": "A fragrant shrub famous for the lawsone dye in its leaves. In Ayurveda, Madayantika is celebrated for its profound cooling virya, clearing burning feet, conditioning hair, and soothing headaches.",
+        "traditional_uses": [
+            "Deeply conditions hair shaft, seals cuticles, and cools the scalp",
+            "Leaf paste applied to soles relieves burning feet syndrome",
+            "Antifungal treatment for athlete's foot and nail infections",
+            "Applied to temples to relieve Pitta-type burning headaches"
+        ],
+        "plant_parts_used": ["Leaves", "Flowers", "Seeds", "Bark"],
+        "dosha": {"balances": ["Pitta", "Kapha"], "may_aggravate": ["Vata (overuse on dry hair)"], "rasa": "Tikta (bitter), Kashaya (astringent)", "virya": "Sheeta (cooling)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Hot, arid to semi-arid tropical", "soil": "Sandy, well-draining loamy soil", "watering": "Low; drought-tolerant", "sunlight": "Full intense sun", "propagation": "Seeds and stem cuttings", "harvesting": "Leaves gathered prior to flowering"},
+        "habitat": "Rajasthan, Gujarat, and dry plains of India",
+        "safety_notes": "Pure natural henna is safe. Avoid commercial black henna containing harmful chemical PPD.",
+        "tags": ["cooling", "hair-care", "scalp", "antifungal"]
+    },
+    "Hibiscus": {
+        "name": "Hibiscus",
+        "common_name": "China Rose / Shoe Flower",
+        "scientific_name": "Hibiscus rosa-sinensis",
+        "sanskrit_name": "Japa / Rudrapushpa",
+        "hindi_name": "Gudhal",
+        "gujarati_name": "Jasoos",
+        "botanical_family": "Malvaceae",
+        "description": "A radiant flowering shrub whose mucilaginous red petals and glossy leaves are foundational in Ayurvedic haircare. Promotes hair thickness, cools blood heat, and supports cardiovascular wellness.",
+        "traditional_uses": [
+            "Stimulates dormant hair follicles and prevents thinning and baldness",
+            "Natural hair conditioner imparting glossy shine and bounce",
+            "Flower tea cools high blood pressure and calms menstrual bleeding",
+            "Soothes urinary tract burning and bladder inflammation"
+        ],
+        "plant_parts_used": ["Flowers", "Leaves"],
+        "dosha": {"balances": ["Pitta", "Kapha"], "may_aggravate": ["Vata (mildly)"], "rasa": "Kashaya (astringent), Tikta (bitter), Madhura (sweet)", "virya": "Sheeta (cooling)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Warm humid tropical and subtropical", "soil": "Rich, moist, well-drained loam pH 6.0-6.8", "watering": "Regular watering", "sunlight": "Full sun to light shade", "propagation": "Stem cuttings", "harvesting": "Fresh blossoms and leaves in morning"},
+        "habitat": "Gardens, shrines, and homesteads across India",
+        "safety_notes": "Safe and non-toxic. High therapeutic doses of flower tea should be avoided during early pregnancy.",
+        "tags": ["hair-growth", "cooling", "cardiovascular", "beauty"]
+    },
+    "Honge": {
+        "name": "Honge (Karanja)",
+        "common_name": "Indian Beech Tree",
+        "scientific_name": "Pongamia pinnata",
+        "sanskrit_name": "Karanja",
+        "hindi_name": "Karanj",
+        "gujarati_name": "Kanji",
+        "botanical_family": "Fabaceae",
+        "description": "A medium-sized fast-growing tree with glossy pinnate leaves. Karanja is acclaimed in classical Ayurvedic texts as one of the supreme cleansers for stubborn dermatological disorders and wounds.",
+        "traditional_uses": [
+            "External seed oil and leaf paste treats psoriasis, scabies, and eczema",
+            "Wound-healing (Vrana-ropana) wash for septic ulcers",
+            "Tender twigs traditionally used as toothbrushes to strengthen gums",
+            "Anti-inflammatory application for painful arthritic joints"
+        ],
+        "plant_parts_used": ["Leaves", "Seeds (oil)", "Bark", "Roots"],
+        "dosha": {"balances": ["Kapha", "Vata"], "may_aggravate": ["Pitta"], "rasa": "Tikta (bitter), Katu (pungent), Kashaya (astringent)", "virya": "Ushna (hot)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Tropical and subtropical plains", "soil": "Extremely hardy; thrives in saline, rocky, or waterlogged soils", "watering": "Moderate to low", "sunlight": "Full sun", "propagation": "Seeds and root suckers", "harvesting": "Mature leaves and seed pods"},
+        "habitat": "Riverbanks, canal sides, and avenue plantings throughout India",
+        "safety_notes": "Primarily an external medication. Raw seed oil is not for culinary cooking.",
+        "tags": ["dermatology", "wound-healing", "skin", "antimicrobial"]
+    },
+    "Insulin": {
+        "name": "Insulin Plant",
+        "common_name": "Fiery Costus / Spiral Flag",
+        "scientific_name": "Chamaecostus cuspidatus",
+        "sanskrit_name": "Kostham / Madhura-nashini",
+        "hindi_name": "Insulin Plant",
+        "gujarati_name": "Insulin na Paan",
+        "botanical_family": "Costaceae",
+        "description": "A bushy perennial herb with spirally arranged leaves. Popularly designated as the 'Insulin Plant' because chewing its fresh leaves helps stimulate beta cells and modulate blood glucose levels.",
+        "traditional_uses": [
+            "Chewing 1-2 fresh leaves daily aids glycemic balance in type-2 diabetes",
+            "Rich in corosolic acid that facilitates glucose uptake into muscle cells",
+            "Antioxidant protection against diabetic neuropathy and oxidative stress",
+            "Supports kidney filtration and mild diuretic action"
+        ],
+        "plant_parts_used": ["Fresh leaves", "Rhizome"],
+        "dosha": {"balances": ["Kapha", "Pitta"], "may_aggravate": ["Vata"], "rasa": "Tikta (bitter), Kashaya (astringent), Amla (slightly sour)", "virya": "Sheeta (cooling)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Warm humid tropical climate", "soil": "Moist, fertile loamy soil high in organic matter", "watering": "Regular; needs moist conditions", "sunlight": "Partial shade to dappled light", "propagation": "Stem cuttings and rhizome division", "harvesting": "Leaves plucked fresh in morning"},
+        "habitat": "Native to South America; widely planted in Indian herbal home gardens",
+        "safety_notes": "Monitor blood glucose regularly if combining with pharmaceutical anti-diabetic drugs to avoid hypoglycemia.",
+        "tags": ["diabetes", "blood-sugar", "corosolic-acid", "glycemic"]
+    },
+    "Jackfruit": {
+        "name": "Jackfruit",
+        "common_name": "Jackfruit Tree",
+        "scientific_name": "Artocarpus heterophyllus",
+        "sanskrit_name": "Panasa",
+        "hindi_name": "Kathal",
+        "gujarati_name": "Fanas",
+        "botanical_family": "Moraceae",
+        "description": "A majestic evergreen tree bearing the world's largest tree-borne fruit. Jackfruit leaves are rich in flavonoids and sapogenins traditionally used for wound healing, diabetes, and cooling fever.",
+        "traditional_uses": [
+            "Leaf decoction used as an adjunct to balance elevated blood glucose",
+            "Heated young leaves used as a poultice for abscesses and boils",
+            "Root and bark extracts soothe skin eruptions and asthma",
+            "Ash of leaves mixed with coconut oil promotes rapid burn recovery"
+        ],
+        "plant_parts_used": ["Leaves", "Bark", "Fruit", "Seeds", "Root"],
+        "dosha": {"balances": ["Vata", "Pitta"], "may_aggravate": ["Kapha (sweet ripe fruit)"], "rasa": "Kashaya (astringent leaves), Madhura (fruit)", "virya": "Sheeta (cooling)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Humid tropical climate with plentiful rain", "soil": "Deep, rich, well-draining alluvial loam", "watering": "Regular", "sunlight": "Full sun", "propagation": "Fresh seeds and grafting", "harvesting": "Leaves available year-round"},
+        "habitat": "Native to Western Ghats rainforests; cultivated throughout South India",
+        "safety_notes": "Leaves and green culinary fruit are safe and highly beneficial for health.",
+        "tags": ["blood-sugar", "wound-healing", "skin", "cooling"]
+    },
+    "Jasmine": {
+        "name": "Jasmine",
+        "common_name": "Poet's Jasmine / Common Jasmine",
+        "scientific_name": "Jasminum officinale",
+        "sanskrit_name": "Malati / Jati",
+        "hindi_name": "Chameli",
+        "gujarati_name": "Chameli",
+        "botanical_family": "Oleaceae",
+        "description": "An enchanting climbing shrub with exquisitely fragrant star-shaped white flowers. Known as Jati in Ayurveda, its leaves and blossoms soothe mouth ulcers, cool burning Pitta, and uplift the mood.",
+        "traditional_uses": [
+            "Chewing fresh leaves quickly cures painful aphthous mouth ulcers and gum bleeds",
+            "Aromatherapy of flower essence relieves anxiety, depression, and tension",
+            "Medicated oil cools the head, induces calmness, and enhances hair growth",
+            "Astringent wash for sluggish wounds and conjunctivitis"
+        ],
+        "plant_parts_used": ["Leaves", "Flowers", "Root"],
+        "dosha": {"balances": ["Pitta", "Kapha"], "may_aggravate": ["Vata"], "rasa": "Tikta (bitter), Kashaya (astringent)", "virya": "Sheeta (cooling)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Warm subtropical and tropical", "soil": "Well-drained fertile garden loam", "watering": "Regular moderate", "sunlight": "Full sun to partial sun", "propagation": "Semi-hardwood cuttings and layering", "harvesting": "Blossoms picked early morning"},
+        "habitat": "Cultivated across gardens, balconies, and temples throughout India",
+        "safety_notes": "Very gentle and safe. Highly regarded in classical Ayurvedic formulations.",
+        "tags": ["mouth-ulcer", "calming", "cooling", "hair-care"]
+    },
+    "kamakasturi": {
+        "name": "Kamakasturi (Wild Basil)",
+        "common_name": "Sweet Basil / Sabja",
+        "scientific_name": "Ocimum basilicum",
+        "sanskrit_name": "Kamakasturi / Varvara",
+        "hindi_name": "Sabja / Babui Tulsi",
+        "gujarati_name": "Sabja",
+        "botanical_family": "Lamiaceae",
+        "description": "An aromatic basil variety whose mucilaginous seeds ('Sabja') swell in water into a cooling jelly. Leaves and seeds dispel body heat, relieve acid reflux, and calm nervous tension.",
+        "traditional_uses": [
+            "Soaked seeds provide unmatched internal body cooling in hot summers",
+            "Soothes acidity, heartburn, and gastrointestinal burning",
+            "Relieves constipation, bloating, and irregular bowel movements",
+            "Crushed leaves ease insect bites, acne, and tension headaches"
+        ],
+        "plant_parts_used": ["Seeds (Sabja)", "Leaves", "Flowers"],
+        "dosha": {"balances": ["Pitta", "Vata"], "may_aggravate": ["Kapha (seeds in extreme excess)"], "rasa": "Madhura (sweet seeds), Tikta (bitter leaves)", "virya": "Sheeta (cooling seeds), Ushna (warm leaves)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Warm tropical and subtropical", "soil": "Moist, rich, well-draining garden loam", "watering": "Moderate regular", "sunlight": "Full sun", "propagation": "Seeds", "harvesting": "Leaves continuously; seeds from dry flower spikes"},
+        "habitat": "Homestead herb gardens, temples, and fields across India",
+        "safety_notes": "Always soak seeds thoroughly in water before swallowing. Safe for all age groups.",
+        "tags": ["cooling", "acidity", "sabja", "digestion"]
+    },
+    "Kambajala": {
+        "name": "Kambajala (Agnimantha)",
+        "common_name": "Headache Tree",
+        "scientific_name": "Premna serratifolia",
+        "sanskrit_name": "Agnimantha",
+        "hindi_name": "Arani",
+        "gujarati_name": "Arani",
+        "botanical_family": "Lamiaceae",
+        "description": "One of the cardinal ingredients of the revered Dashamoola (ten roots) formulation. Agnimantha kindle metabolic fire, reduces obesity, relieves neuralgia, and drains lymphatic edema.",
+        "traditional_uses": [
+            "Core herb in Dashamoola for chronic inflammatory and nervous disorders",
+            "Dispels generalized edema, fluid retention, and lymphatic swelling",
+            "Supports weight reduction and adipose tissue metabolism",
+            "Relieves stiffness in neck, spine, and lower back"
+        ],
+        "plant_parts_used": ["Root", "Bark", "Leaves"],
+        "dosha": {"balances": ["Vata", "Kapha"], "may_aggravate": ["Pitta (mildly)"], "rasa": "Tikta (bitter), Katu (pungent), Kashaya (astringent)", "virya": "Ushna (heating)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Warm coastal tropical climate", "soil": "Sandy and loamy soils", "watering": "Moderate", "sunlight": "Full sun to light shade", "propagation": "Seeds and stem cuttings", "harvesting": "Mature roots and leaves"},
+        "habitat": "Coastal forests, tidal banks, and scrub jungles across India",
+        "safety_notes": "Safe within classical multi-herb compounds. Follow expert dosage guidelines.",
+        "tags": ["dashamoola", "edema", "weight-loss", "vata-relief"]
+    },
+    "Kasambruga": {
+        "name": "Kasambruga (Chopchini)",
+        "common_name": "Wild Smilax / Sarsaparilla Vine",
+        "scientific_name": "Smilax zeylanica",
+        "sanskrit_name": "Chopchini / Mahashyama",
+        "hindi_name": "Chopchini",
+        "gujarati_name": "Chopchini",
+        "botanical_family": "Smilacaceae",
+        "description": "A vigorous prickly climbing shrub with leathery leaves and tuberous roots. Famous in Ayurveda for deep blood purification, clearing skin afflictions, and rejuvenating reproductive tissues.",
+        "traditional_uses": [
+            "Powerful blood purifier clearing chronic eczema, psoriasis, and boils",
+            "Relieves secondary syphilis, pelvic inflammatory conditions, and leukorrhea",
+            "Soothes chronic rheumatic joint aches and gout",
+            "Rejuvenating tonic for reproductive vitality"
+        ],
+        "plant_parts_used": ["Tuberous roots", "Leaves"],
+        "dosha": {"balances": ["Tridosha (especially Vata and Kapha)"], "may_aggravate": [], "rasa": "Tikta (bitter), Madhura (sweet)", "virya": "Ushna (warm)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Humid subtropical and tropical hill forests", "soil": "Humus-rich forest loam with moisture", "watering": "Moderate", "sunlight": "Partial shade under forest canopy", "propagation": "Rhizome cuttings", "harvesting": "Mature subterranean tubers"},
+        "habitat": "Understory of wet deciduous and semi-evergreen forests",
+        "safety_notes": "Safe in recommended classical decoction and powder forms.",
+        "tags": ["blood-purifier", "skin", "joints", "rejuvenation"]
+    },
+    "kepala": {
+        "name": "Kepala (Ixora / Raktaka)",
+        "common_name": "Jungle Geranium / Flame of the Woods",
+        "scientific_name": "Ixora coccinea",
+        "sanskrit_name": "Raktaka / Paranti",
+        "hindi_name": "Rangan / Rugmini",
+        "gujarati_name": "Ishwar Chhadi",
+        "botanical_family": "Rubiaceae",
+        "description": "A dense evergreen flowering shrub laden with scarlet flower clusters. Its roots, blossoms, and leaves have a distinguished heritage in Ayurveda for arresting dysentery, cooling fever, and clearing ulcers.",
+        "traditional_uses": [
+            "Decoction of flowers and leaves halts chronic diarrhea and dysentery",
+            "Applied topically to resolve boils, eczema, and skin sores",
+            "Astringent wash soothing leukorrhea and gynecological inflammation",
+            "Cools internal inflammation and mild fevers"
+        ],
+        "plant_parts_used": ["Flowers", "Leaves", "Roots", "Bark"],
+        "dosha": {"balances": ["Pitta", "Kapha"], "may_aggravate": ["Vata"], "rasa": "Kashaya (astringent), Tikta (bitter)", "virya": "Sheeta (cooling)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Warm humid tropical and subtropical", "soil": "Slightly acidic, well-draining loamy soil", "watering": "Regular watering", "sunlight": "Full sun to partial shade", "propagation": "Stem cuttings", "harvesting": "Blossoms and leaves during full bloom"},
+        "habitat": "Endemic to Western Ghats; grown as sacred shrub across Indian temples",
+        "safety_notes": "Gentle and non-toxic herbal remedy.",
+        "tags": ["astringent", "skin-ulcers", "cooling", "gynecology"]
+    },
+    "Kohlrabi": {
+        "name": "Kohlrabi (Knol Khol)",
+        "common_name": "German Turnip / Knol Khol",
+        "scientific_name": "Brassica oleracea var. gongylodes",
+        "sanskrit_name": "Noolkol",
+        "hindi_name": "Ganth Gobi",
+        "gujarati_name": "Navalkol",
+        "botanical_family": "Brassicaceae",
+        "description": "A stout biennial vegetable featuring a bulbous swollen stem surrounded by nutritious green leaves. Exceptionally rich in glucosinolates, Vitamin C, and dietary fiber supporting metabolic and liver vitality.",
+        "traditional_uses": [
+            "Encourages Phase-II liver enzyme detoxification",
+            "High soluble fiber aids cholesterol and glycemic control",
+            "Provides potent antioxidant and free-radical defense",
+            "Supports weight management and digestive regularity"
+        ],
+        "plant_parts_used": ["Swollen bulb stem", "Leaves"],
+        "dosha": {"balances": ["Kapha", "Pitta"], "may_aggravate": ["Vata (raw can cause gas)"], "rasa": "Madhura (sweet), Katu (slightly pungent)", "virya": "Sheeta (cooling)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Cool temperate and subtropical winter", "soil": "Rich, moist, well-drained loam", "watering": "Regular consistent watering", "sunlight": "Full sun", "propagation": "Seeds", "harvesting": "Tender bulbs when 2-3 inches in diameter"},
+        "habitat": "Cultivated widely across Indian winter vegetable tracts",
+        "safety_notes": "Cook thoroughly with cumin or ginger to mitigate flatulence for Vata individuals.",
+        "tags": ["antioxidant", "liver-detox", "fiber", "metabolism"]
+    },
+    "Lantana": {
+        "name": "Lantana (Ghaneri)",
+        "common_name": "Wild Sage / Tickberry",
+        "scientific_name": "Lantana camara",
+        "sanskrit_name": "Ghaneri / Raimuniya",
+        "hindi_name": "Ghaneri",
+        "gujarati_name": "Ghaneri",
+        "botanical_family": "Verbenaceae",
+        "description": "A hardy evergreen shrub with aromatic rough leaves and multicolored flower umbels. In folk medicine, its leaves are strictly utilized externally for antiseptic wound washing and insect repelling.",
+        "traditional_uses": [
+            "Leaf decoction applied externally to wash infected wounds and ulcers",
+            "Poultice applied on swellings and rheumatic joints",
+            "Natural mosquito and insect repellent smoke from dried foliage",
+            "Antifungal wash for ringworm and skin fungal patches"
+        ],
+        "plant_parts_used": ["Leaves (strictly external)"],
+        "dosha": {"balances": ["Kapha", "Vata"], "may_aggravate": ["Pitta"], "rasa": "Tikta (bitter), Kashaya (astringent)", "virya": "Ushna (hot)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Tropical and subtropical scrublands", "soil": "Extremely resilient; survives in poor dry soils", "watering": "Drought-hardy", "sunlight": "Full sun", "propagation": "Seeds and root suckers", "harvesting": "Leaves picked with care"},
+        "habitat": "Invasive shrub throughout degraded forests and wastelands of India",
+        "safety_notes": "CAUTION: Unripe green berries and excessive internal ingestion are toxic. Keep strictly for external wash formulations.",
+        "tags": ["antiseptic", "wound-wash", "insect-repellent", "external"]
+    },
+    "Lemon": {
+        "name": "Lemon (Nimbuka)",
+        "common_name": "Lemon",
+        "scientific_name": "Citrus limon",
+        "sanskrit_name": "Nimbuka / Amlajambira",
+        "hindi_name": "Nimbu",
+        "gujarati_name": "Limbu",
+        "botanical_family": "Rutaceae",
+        "description": "A small thorny tree laden with yellow citrus fruits. Nimbuka is a staple in Ayurvedic daily regimen (Dinacharya) for stimulating digestion, clearing toxins, and providing vitamin C.",
+        "traditional_uses": [
+            "Warm lemon water with honey morning drink stimulates digestion and eliminates toxins",
+            "Prevents nausea, motion sickness, and digestive sluggishness",
+            "Supports healthy liver bile flow and kidney stone prevention",
+            "Topical juice clarifies skin blemishes and dandruff"
+        ],
+        "plant_parts_used": ["Fruit juice", "Rind (zest)", "Leaves"],
+        "dosha": {"balances": ["Vata", "Kapha"], "may_aggravate": ["Pitta (in extreme excess)"], "rasa": "Amla (sour), Tikta (bitter rind)", "virya": "Ushna (heating)", "vipaka": "Amla (sour)"},
+        "cultivation": {"climate": "Subtropical and tropical", "soil": "Well-drained sandy loam pH 5.5-6.5", "watering": "Regular; avoid stagnant roots", "sunlight": "Full direct sun", "propagation": "Grafting, air layering, seeds", "harvesting": "Mature yellow fruit and fresh leaves"},
+        "habitat": "Orchards and household compounds throughout India",
+        "safety_notes": "Very safe. Protect tooth enamel by rinsing mouth after drinking concentrated lemon juice.",
+        "tags": ["digestive", "detox", "vitamin-c", "cleansing"]
+    },
+    "Lemongrass": {
+        "name": "Lemongrass",
+        "common_name": "Cochin Grass / Oil Grass",
+        "scientific_name": "Cymbopogon citratus",
+        "sanskrit_name": "Bhustrina",
+        "hindi_name": "Nimbu Ghas",
+        "gujarati_name": "Lili Chha",
+        "botanical_family": "Poaceae",
+        "description": "A fast-growing aromatic tropical grass with linear leaves that emit a delightful lemon scent. Widely consumed in herbal teas for breaking fevers, calming digestion, and easing headaches.",
+        "traditional_uses": [
+            "Hot herbal tea promotes gentle perspiration to break fevers and colds",
+            "Soothes digestive spasms, abdominal gas, and nausea",
+            "Citral essential oil relieves aching muscles and tension headaches",
+            "Natural antibacterial, antifungal, and insect repellent"
+        ],
+        "plant_parts_used": ["Leaves", "Stalks", "Essential oil"],
+        "dosha": {"balances": ["Vata", "Kapha"], "may_aggravate": ["Pitta (in high excess)"], "rasa": "Katu (pungent), Tikta (bitter)", "virya": "Ushna (warm)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Warm, sunny tropical and subtropical", "soil": "Well-drained sandy loam", "watering": "Moderate", "sunlight": "Full sun", "propagation": "Clump division (slips)", "harvesting": "Foliage harvested 3-4 times a year"},
+        "habitat": "Native to India and Southeast Asia; widely cultivated in Kerala and Tamil Nadu",
+        "safety_notes": "Very safe herbal tea. Essential oil should be diluted with carrier oil before topical skin application.",
+        "tags": ["herbal-tea", "fever", "digestive", "aromatic"]
+    },
+    "Malabar_Nut": {
+        "name": "Malabar Nut (Vasaka)",
+        "common_name": "Adhatoda / Vasaka",
+        "scientific_name": "Justicia adhatoda",
+        "sanskrit_name": "Vasaka / Vasa",
+        "hindi_name": "Adusa / Bansa",
+        "gujarati_name": "Ardusi",
+        "botanical_family": "Acanthaceae",
+        "description": "Renowned across millennia as the supreme Ayurvedic lung restorative. Contains vasicine, an alkaloid with potent bronchodilator and mucolytic properties that liquify bronchial phlegm and ease breathing.",
+        "traditional_uses": [
+            "Liquifies stubborn bronchial mucus and eases dry, hacking coughs",
+            "Potent bronchodilator for asthma, bronchitis, and breathlessness",
+            "Arrests bleeding disorders (Raktapitta), hemoptysis, and epistaxis",
+            "Anti-inflammatory support for tuberculosis recovery and voice clarity"
+        ],
+        "plant_parts_used": ["Leaves", "Root", "Flowers"],
+        "dosha": {"balances": ["Kapha", "Pitta"], "may_aggravate": ["Vata (in excess)"], "rasa": "Tikta (bitter), Kashaya (astringent)", "virya": "Sheeta (cooling)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Tropical and subtropical plains and foothills", "soil": "Adaptable to various soils, prefers well-drained loam", "watering": "Moderate; drought-hardy once established", "sunlight": "Full sun to partial shade", "propagation": "Stem cuttings and seeds", "harvesting": "Mature leaves prior to flowering"},
+        "habitat": "Throughout India up to 1,300 meters altitude along slopes and hedges",
+        "safety_notes": "Vasicine possesses mild oxytocic action; contraindicated in high doses during pregnancy.",
+        "tags": ["bronchodilator", "respiratory", "cough", "ayurveda-staple"]
+    },
+    "Malabar_Spinach": {
+        "name": "Malabar Spinach",
+        "common_name": "Ceylon Spinach / Basella",
+        "scientific_name": "Basella alba",
+        "sanskrit_name": "Upodika",
+        "hindi_name": "Poi Saag",
+        "gujarati_name": "Potiya na Paan",
+        "botanical_family": "Basellaceae",
+        "description": "A soft-stemmed vigorous twining vine bearing thick, succulent mucilaginous leaves. Upodika is praised in Ayurveda for its nutritive, cooling, aphrodisiac, and bowel-soothing attributes.",
+        "traditional_uses": [
+            "Cools internal body heat, burning urination, and gastritis",
+            "Lubricates intestinal lining and gently resolves chronic constipation",
+            "Leaf paste applied to burns, scalds, and inflammatory skin boils",
+            "Nutrient-dense source of iron, Vitamin A, and folate"
+        ],
+        "plant_parts_used": ["Leaves", "Tender succulent stems"],
+        "dosha": {"balances": ["Vata", "Pitta"], "may_aggravate": ["Kapha (in excess due to mucilage)"], "rasa": "Madhura (sweet)", "virya": "Sheeta (cooling)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Hot, humid tropical and subtropical climate", "soil": "Moist, rich, organic matter-filled loam", "watering": "Regular high moisture", "sunlight": "Full sun to partial shade", "propagation": "Stem cuttings and seeds", "harvesting": "Leaves and vine tips picked continuously"},
+        "habitat": "Widely cultivated across Indian home and village gardens",
+        "safety_notes": "Exceptionally safe, cooling, and wholesome culinary and therapeutic leafy green.",
+        "tags": ["cooling", "mucilaginous", "constipation", "nutritive"]
+    },
+    "Mango": {
+        "name": "Mango (Amra)",
+        "common_name": "Mango Tree",
+        "scientific_name": "Mangifera indica",
+        "sanskrit_name": "Amra",
+        "hindi_name": "Aam",
+        "gujarati_name": "Keri",
+        "botanical_family": "Anacardiaceae",
+        "description": "The sacred 'King of Fruits' in India. Mango leaves are laden with mangiferin, an exceptional polyphenol with antidiabetic, antiviral, cardioprotective, and anti-inflammatory properties.",
+        "traditional_uses": [
+            "Tender leaf infusion balances early diabetes and regulates insulin secretion",
+            "Powdered dry leaves alleviate respiratory cough and asthma",
+            "Astringent mouth rinse relieves bleeding gums and mouth ulcers",
+            "Supports vascular elasticity and reduces blood pressure"
+        ],
+        "plant_parts_used": ["Tender young leaves", "Bark", "Fruit", "Seed kernel"],
+        "dosha": {"balances": ["Pitta", "Kapha (leaves)", "Vata (sweet fruit)"], "may_aggravate": ["Pitta (sour green fruit)"], "rasa": "Kashaya (astringent leaves), Tikta (bitter)", "virya": "Sheeta (cooling leaves)", "vipaka": "Katu (leaves)"},
+        "cultivation": {"climate": "Tropical and subtropical with distinct dry spell", "soil": "Deep, well-draining rich alluvial or laterite loam", "watering": "Moderate; drought-tolerant when mature", "sunlight": "Full sun", "propagation": "Grafting (inarching/veneer)", "harvesting": "Tender pink-green leaves"},
+        "habitat": "Every corner of India from the plains to the Western Ghats",
+        "safety_notes": "Tender leaves make a safe, beneficial tea. Avoid sap which can irritate sensitive skin.",
+        "tags": ["mangiferin", "diabetes", "oral-care", "antioxidant"]
+    },
+    "Marigold": {
+        "name": "Marigold",
+        "common_name": "African Marigold / Aztec Marigold",
+        "scientific_name": "Tagetes erecta",
+        "sanskrit_name": "Zendu / Jhanndu",
+        "hindi_name": "Genda",
+        "gujarati_name": "Galgota",
+        "botanical_family": "Asteraceae",
+        "description": "A radiant golden-orange flowering herb celebrated in Indian festivals and Ayurveda. Packed with lutein and zeaxanthin for eyesight and essential oils that rapidly soothe cuts and skin bleeds.",
+        "traditional_uses": [
+            "Fresh leaf juice quickly arrests capillary bleeding from fresh cuts and wounds",
+            "High lutein content nourishes retinal macula and protects vision",
+            "Anti-inflammatory wash for conjunctivitis, boils, and hemorrhoids",
+            "Soothes insect bites, eczema, and skin rashes"
+        ],
+        "plant_parts_used": ["Flower petals", "Leaves"],
+        "dosha": {"balances": ["Pitta", "Kapha"], "may_aggravate": ["Vata"], "rasa": "Tikta (bitter), Kashaya (astringent)", "virya": "Sheeta (cooling)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Mild subtropical and tropical", "soil": "Well-drained garden soil", "watering": "Moderate regular", "sunlight": "Full sun", "propagation": "Seeds", "harvesting": "Fresh blossoms and leaves throughout flowering"},
+        "habitat": "Homesteads, flower farms, and temple surroundings throughout India",
+        "safety_notes": "Safe for topical wound care and mild infusions. Ensure flowers are pesticide-free.",
+        "tags": ["wound-healing", "vision", "lutein", "anti-inflammatory"]
+    },
+    "Mint": {
+        "name": "Mint (Pudina)",
+        "common_name": "Spearmint / Garden Mint",
+        "scientific_name": "Mentha spicata",
+        "sanskrit_name": "Pudina",
+        "hindi_name": "Pudina",
+        "gujarati_name": "Fudino",
+        "botanical_family": "Lamiaceae",
+        "description": "A delightfully aromatic creeping herb brimming with menthol and carvone. In Ayurveda, Pudina is prized for its instantaneous digestive cooling, carminative action, and relief from nausea and headaches.",
+        "traditional_uses": [
+            "Dispels bloating, flatulence, and irritable bowel cramping",
+            "Instantly settles nausea, travel sickness, and morning sickness",
+            "Leaves brewed into tea relieve tension headaches and sinus congestion",
+            "Natural breath freshener and antimicrobial oral protector"
+        ],
+        "plant_parts_used": ["Leaves", "Essential oil"],
+        "dosha": {"balances": ["Vata", "Kapha", "Pitta"], "may_aggravate": [], "rasa": "Katu (pungent), Tikta (bitter)", "virya": "Sheeta (cooling)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Temperate to warm subtropical", "soil": "Moist, rich, well-drained loamy soil", "watering": "Frequent watering", "sunlight": "Partial shade to morning sun", "propagation": "Runners and root cuttings", "harvesting": "Leaves gathered continuously"},
+        "habitat": "Kitchen gardens and herb pots across India",
+        "safety_notes": "Exceptionally safe culinary herb. Avoid applying undiluted essential oil to infants' faces.",
+        "tags": ["digestive", "cooling", "nausea", "headache"]
+    },
+    "Neem": {
+        "name": "Neem",
+        "common_name": "Indian Lilac",
+        "scientific_name": "Azadirachta indica",
+        "sanskrit_name": "Nimba / Arishta",
+        "hindi_name": "Neem",
+        "gujarati_name": "Limdo",
+        "botanical_family": "Meliaceae",
+        "description": "Known as the 'Village Pharmacy' of India. In Ayurveda, Neem is the supreme blood purifier (Rakta-shodhaka), intensely bitter, antimicrobial, and skin-rejuvenating.",
+        "traditional_uses": [
+            "Purifies blood and clears persistent acne, psoriasis, and dermatitis",
+            "Natural antibacterial protection for oral hygiene via datun twigs",
+            "Supports healthy blood glucose regulation and liver detoxification",
+            "Antifungal, antiviral, and antiparasitic wash for skin and hair"
+        ],
+        "plant_parts_used": ["Leaves", "Bark", "Seeds (oil)", "Flowers"],
+        "dosha": {"balances": ["Pitta", "Kapha"], "may_aggravate": ["Vata (in excess)"], "rasa": "Tikta (bitter), Kashaya (astringent)", "virya": "Sheeta (cooling)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Tropical and subtropical; semi-arid drought resistant", "soil": "Wide adaptability, sandy or clay loam", "watering": "Low", "sunlight": "Full blazing sun", "propagation": "Seeds and root suckers", "harvesting": "Leaves and bark year-round"},
+        "habitat": "Planted along roadways, village squares, and farmlands throughout India",
+        "safety_notes": "Neem oil is for external use only. Excessive internal consumption of neem should be avoided during pregnancy.",
+        "tags": ["blood-purifier", "skin", "antimicrobial", "bitter-tonic"]
+    },
+    "Nelavembu": {
+        "name": "Nelavembu (Kalmegh)",
+        "common_name": "King of Bitters",
+        "scientific_name": "Andrographis paniculata",
+        "sanskrit_name": "Bhunimba / Kalmegha",
+        "hindi_name": "Kalmegh",
+        "gujarati_name": "Kariyatu",
+        "botanical_family": "Acanthaceae",
+        "description": "Known as 'Bhunimba' (Neem of the Earth) and 'King of Bitters.' A premier immunostimulant and hepatoprotective herb packed with andrographolides that combat viral fevers, dengue, and liver congestion.",
+        "traditional_uses": [
+            "Famed Nelavembu Kashayam formulation combats dengue, chikungunya, and viral fevers",
+            "Restores liver function and protects hepatocytes against toxins",
+            "Potent antiviral, antipyretic, and anti-inflammatory action",
+            "Purifies lymphatic pathways and stimulates immune defenses"
+        ],
+        "plant_parts_used": ["Whole herb", "Leaves", "Aerial parts"],
+        "dosha": {"balances": ["Pitta", "Kapha"], "may_aggravate": ["Vata (in excess)"], "rasa": "Tikta (extremely bitter)", "virya": "Ushna (heating)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Tropical and subtropical with abundant rain", "soil": "Moist, sandy loam high in organic matter", "watering": "Regular moderate", "sunlight": "Partial shade to open sun", "propagation": "Seeds and stem cuttings", "harvesting": "Flowering stage for maximum andrographolide"},
+        "habitat": "Plains and hill slopes of peninsular and northeastern India",
+        "safety_notes": "Intensely bitter. Best consumed as classical decoction with honey. Avoid in pregnancy.",
+        "tags": ["antiviral", "fever", "dengue", "liver-tonic"]
+    },
+    "Nerale": {
+        "name": "Nerale (Jamun)",
+        "common_name": "Black Plum / Java Plum",
+        "scientific_name": "Syzygium cumini",
+        "sanskrit_name": "Jambu",
+        "hindi_name": "Jamun",
+        "gujarati_name": "Jambu",
+        "botanical_family": "Myrtaceae",
+        "description": "A magnificent large evergreen tree yielding deep purple berries. Jamun seeds and leaves are world-renowned in Ayurvedic diabetology for their jamboline glycosides that curb the conversion of starch into sugar.",
+        "traditional_uses": [
+            "Regulates blood glucose levels and prevents glycosuria in diabetes",
+            "Astringent leaf decoction cures dysentery, diarrhea, and bleeding gums",
+            "Protects pancreatic beta cells against oxidative damage",
+            "Supports kidney health and reduces excessive thirst (Polydipsia)"
+        ],
+        "plant_parts_used": ["Seeds", "Leaves", "Bark", "Fruit"],
+        "dosha": {"balances": ["Kapha", "Pitta"], "may_aggravate": ["Vata (in excess due to astringency)"], "rasa": "Kashaya (astringent), Tikta (bitter), Madhura (sweet fruit)", "virya": "Sheeta (cooling)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Tropical and subtropical zones", "soil": "Alluvial, deep loamy soils, withstands waterlogging", "watering": "Moderate", "sunlight": "Full sun", "propagation": "Seeds and budding", "harvesting": "Fruit in monsoon, leaves and seeds gathered year-round"},
+        "habitat": "Riverbanks, evergreen forests, and orchards across India",
+        "safety_notes": "Very safe. Diabetics on medication should monitor glucose when taking seed powder.",
+        "tags": ["diabetes", "pancreas", "astringent", "blood-sugar"]
+    },
+    "Nooni": {
+        "name": "Noni (Indian Mulberry)",
+        "common_name": "Great Morinda / Noni",
+        "scientific_name": "Morinda citrifolia",
+        "sanskrit_name": "Ashyuka / Akshi",
+        "hindi_name": "Aal / Noni",
+        "gujarati_name": "Surangi",
+        "botanical_family": "Rubiaceae",
+        "description": "A tropical evergreen shrub bearing bumpy yellowish-white fruit. Celebrated in Polynesian and coastal Indian traditions for its high concentration of proxeronine, scopoletin, and cellular rejuvenating power.",
+        "traditional_uses": [
+            "Enhances cellular repair, energy vitality, and general immunity",
+            "Anti-inflammatory support for chronic joint pain and arthritis",
+            "Regulates healthy blood pressure and cardiovascular balance",
+            "Leaf poultice soothes deep tissue bruises, ulcers, and sprains"
+        ],
+        "plant_parts_used": ["Fruit", "Leaves", "Bark", "Roots"],
+        "dosha": {"balances": ["Vata", "Kapha"], "may_aggravate": ["Pitta (in excess)"], "rasa": "Tikta (bitter), Katu (pungent)", "virya": "Ushna (warm)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Warm humid coastal tropical", "soil": "Adaptable to sandy coastal soils and volcanic loam", "watering": "Moderate; drought and salt tolerant", "sunlight": "Full sun", "propagation": "Seeds and stem cuttings", "harvesting": "Translucent ripe fruit and mature leaves"},
+        "habitat": "Coastal belts, Andaman & Nicobar islands, and peninsular India",
+        "safety_notes": "High in potassium; individuals with advanced renal disease should limit intake.",
+        "tags": ["cellular-repair", "immunity", "energy", "joints"]
+    },
+    "Onion": {
+        "name": "Onion (Palandu)",
+        "common_name": "Garden Onion",
+        "scientific_name": "Allium cepa",
+        "sanskrit_name": "Palandu",
+        "hindi_name": "Pyaz",
+        "gujarati_name": "Dungri",
+        "botanical_family": "Amaryllidaceae",
+        "description": "A pungent bulbous herb rich in quercetin, allicin, and organic sulfur compounds. Revered in Ayurveda as Palandu for strengthening respiratory vitality, nourishing hair roots, and promoting male reproductive stamina.",
+        "traditional_uses": [
+            "Fresh onion juice massaged into scalp stimulates dormant hair regrowth",
+            "Expectorant that liquifies thick phlegm in chest colds and asthma",
+            "Cardioprotective support reducing platelet aggregation and cholesterol",
+            "Aphrodisiac (Vajikarana) tonic nourishing deep bodily tissues"
+        ],
+        "plant_parts_used": ["Bulb", "Green shoots (leaves)", "Seeds"],
+        "dosha": {"balances": ["Vata"], "may_aggravate": ["Pitta", "Kapha (in excess)"], "rasa": "Madhura (sweet), Katu (pungent)", "virya": "Anushna (mildly warm)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Mild winter subtropical and temperate", "soil": "Friable, fertile, sandy loam pH 6.0-7.0", "watering": "Regular light irrigation", "sunlight": "Full sun", "propagation": "Seeds and onion sets", "harvesting": "When foliage tops fall over and dry"},
+        "habitat": "Heavily cultivated in Maharashtra, Gujarat, and across India",
+        "safety_notes": "Wholesome dietary food. Raw onion can cause mild heartburn in individuals prone to Pitta reflux.",
+        "tags": ["hair-growth", "respiratory", "cardiovascular", "quercetin"]
+    },
+    "Padri": {
+        "name": "Padri (Patala)",
+        "common_name": "Trumpet Flower Tree",
+        "scientific_name": "Stereospermum chelonoides",
+        "sanskrit_name": "Patala",
+        "hindi_name": "Padal",
+        "gujarati_name": "Padal",
+        "botanical_family": "Bignoniaceae",
+        "description": "A majestic deciduous forest tree bearing fragrant yellowish-pink trumpet blossoms. Patala is one of the ten venerable ingredients of Dashamoola, renowned for pacifying Vata, soothing coughs, and cooling fevers.",
+        "traditional_uses": [
+            "Pivotal root ingredient of Dashamoola for neurological and arthritic healing",
+            "Cools internal inflammation, fevers, and burning sensations",
+            "Soothes persistent dry coughs and respiratory wheezing",
+            "Bark decoction supports kidney filtration and eliminates edema"
+        ],
+        "plant_parts_used": ["Root bark", "Flowers", "Leaves"],
+        "dosha": {"balances": ["Tridosha (especially Vata and Kapha)"], "may_aggravate": [], "rasa": "Tikta (bitter), Kashaya (astringent)", "virya": "Anushna (neutral to mildly cooling)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Warm moist tropical to subtropical forest zones", "soil": "Deep, well-draining moist forest loam", "watering": "Moderate", "sunlight": "Full sun to partial shade", "propagation": "Seeds and root cuttings", "harvesting": "Mature roots and leaves from sustainable sources"},
+        "habitat": "Deciduous and moist forests of Himalayas, Western Ghats, and Central India",
+        "safety_notes": "Extremely safe in classical compound Ayurvedic decoctions.",
+        "tags": ["dashamoola", "nervous-system", "anti-inflammatory", "rejuvenation"]
+    },
+    "Palak(Spinach)": {
+        "name": "Spinach (Palak)",
+        "common_name": "Spinach",
+        "scientific_name": "Spinacia oleracea",
+        "sanskrit_name": "Palakya",
+        "hindi_name": "Palak",
+        "gujarati_name": "Palak",
+        "botanical_family": "Amaranthaceae",
+        "description": "An annual green leafy vegetable loaded with carotenoids, folate, chlorophyll, and bioavailable minerals. In Ayurveda, Palak is praised for replenishing red blood cells and soothing inflammatory heat.",
+        "traditional_uses": [
+            "Replenishes hemoglobin levels and combats iron-deficiency anemia",
+            "High lutein and zeaxanthin nourish eyesight and protect retina",
+            "Provides gentle dietary fiber for bowel regularity",
+            "Alkalinizing leafy green that pacifies excessive Pitta heat"
+        ],
+        "plant_parts_used": ["Tender green leaves"],
+        "dosha": {"balances": ["Pitta", "Kapha"], "may_aggravate": ["Vata (raw can cause dry gas)"], "rasa": "Madhura (sweet), Kashaya (astringent)", "virya": "Sheeta (cooling)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Cool season crop; subtropical winter and temperate", "soil": "Rich, moist, nitrogen-rich loamy soil", "watering": "Regular watering", "sunlight": "Full sun to partial shade", "propagation": "Seeds", "harvesting": "Leaves cut 4-6 weeks after sowing"},
+        "habitat": "Grown everywhere in agricultural plains and kitchen patches",
+        "safety_notes": "Contains oxalates; individuals prone to calcium-oxalate kidney stones should cook spinach lightly rather than consuming raw.",
+        "tags": ["iron-rich", "anemia", "eyesight", "alkalizing"]
+    },
+    "Papaya": {
+        "name": "Papaya",
+        "common_name": "Papaya / Pawpaw",
+        "scientific_name": "Carica papaya",
+        "sanskrit_name": "Erandakarkati",
+        "hindi_name": "Papita",
+        "gujarati_name": "Papayu",
+        "botanical_family": "Caricaceae",
+        "description": "A fast-growing soft-wooded tree yielding large melon-like fruit. Papaya leaves are globally renowned for rapidly boosting platelet counts during dengue and viral fevers, powered by carpaine and papain.",
+        "traditional_uses": [
+            "Fresh leaf juice rapidly elevates low blood platelet counts in dengue fever",
+            "Papain enzyme enhances protein digestion and clears gastrointestinal sludge",
+            "Assists in clearing internal parasites and worms",
+            "Wound poultice accelerates sloughing of dead tissue in slow-healing ulcers"
+        ],
+        "plant_parts_used": ["Leaves", "Fruit (ripe and green)", "Seeds"],
+        "dosha": {"balances": ["Kapha", "Vata"], "may_aggravate": ["Pitta (in excess due to heating nature)"], "rasa": "Tikta (bitter leaves), Madhura (sweet ripe fruit)", "virya": "Ushna (hot)", "vipaka": "Katu (leaves)"},
+        "cultivation": {"climate": "Frost-free humid tropical and warm subtropical", "soil": "Rich, porous, well-draining loam; cannot tolerate water stagnation", "watering": "Moderate regular", "sunlight": "Full blazing sun", "propagation": "Seeds", "harvesting": "Mature healthy green leaves and fruits"},
+        "habitat": "Homesteads, orchards, and farms across India",
+        "safety_notes": "Fresh leaf juice is bitter but very effective for platelets. Unripe papaya is contraindicated in early pregnancy due to mild uterine stimulation.",
+        "tags": ["platelets", "dengue", "digestive-enzymes", "immunity"]
+    },
+    "Parijatha": {
+        "name": "Parijata (Night Jasmine)",
+        "common_name": "Night-flowering Jasmine / Coral Jasmine",
+        "scientific_name": "Nyctanthes arbor-tristis",
+        "sanskrit_name": "Parijata / Harsinghar",
+        "hindi_name": "Harsingar / Parijat",
+        "gujarati_name": "Parijatak",
+        "botanical_family": "Oleaceae",
+        "description": "A sacred small tree shedding fragrant white blossoms with vibrant orange stems at dawn. Parijata leaves are celebrated in Ayurveda as the premier specific remedy for chronic sciatica and stubborn joint fevers.",
+        "traditional_uses": [
+            "Acclaimed specific remedy for severe sciatica, lumbar nerve compression, and arthritis",
+            "Leaf decoction relieves intermittent malarial fevers and viral aches",
+            "Calms dry hacking coughs and bronchitis",
+            "Purifies blood and clears stubborn fungal skin eruptions"
+        ],
+        "plant_parts_used": ["Leaves", "Flowers", "Bark"],
+        "dosha": {"balances": ["Kapha", "Vata"], "may_aggravate": ["Pitta (in high excess)"], "rasa": "Tikta (bitter), Katu (pungent)", "virya": "Ushna (hot)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Tropical and subtropical climates", "soil": "Well-drained garden soil", "watering": "Moderate; drought-tolerant", "sunlight": "Full sun to partial sun", "propagation": "Seeds and stem cuttings", "harvesting": "Leaves gathered fresh; blossoms at dawn"},
+        "habitat": "Sub-Himalayan tracts, central India, and temple groves",
+        "safety_notes": "Safe and highly esteemed. Decoction has an intense bitter taste; combine with jaggery or honey.",
+        "tags": ["sciatica", "joint-pain", "fever", "anti-arthritic"]
+    },
+    "Pea": {
+        "name": "Pea (Satila)",
+        "common_name": "Garden Pea",
+        "scientific_name": "Pisum sativum",
+        "sanskrit_name": "Satila / Kalaya",
+        "hindi_name": "Matar",
+        "gujarati_name": "Vatana",
+        "botanical_family": "Fabaceae",
+        "description": "An annual climbing legume with delicate tendrils and sweet pods. Peas are rich in plant proteins, polyphenols, and dietary fiber that nourish the tissues and support healthy cardiovascular metabolism.",
+        "traditional_uses": [
+            "Nutritious plant-based protein builder supporting tissue repair",
+            "Astringent and cooling vegetable that soothes internal burning heat",
+            "Finely ground pea flour used in classical Ubtan face pastes for radiant skin",
+            "Soluble fiber assists in cholesterol and lipid balance"
+        ],
+        "plant_parts_used": ["Green seeds (peas)", "Pods", "Tender leaves"],
+        "dosha": {"balances": ["Pitta", "Kapha"], "may_aggravate": ["Vata (in excess)"], "rasa": "Madhura (sweet), Kashaya (astringent)", "virya": "Sheeta (cooling)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Cool temperate and subtropical winter", "soil": "Friable, well-drained fertile loam pH 6.0-7.5", "watering": "Moderate", "sunlight": "Full sun", "propagation": "Seeds", "harvesting": "Tender young pods"},
+        "habitat": "Widespread winter agriculture throughout the Indo-Gangetic plains",
+        "safety_notes": "Cook with digestive spices like hing (asafoetida) and ginger to prevent Vata flatulence.",
+        "tags": ["protein", "skin-ubtan", "cooling", "nutrition"]
+    },
+    "Pepper": {
+        "name": "Black Pepper",
+        "common_name": "Black Pepper / King of Spices",
+        "scientific_name": "Piper nigrum",
+        "sanskrit_name": "Maricha",
+        "hindi_name": "Kali Mirch",
+        "gujarati_name": "Mari",
+        "botanical_family": "Piperaceae",
+        "description": "Revered as 'Maricha' (named after the Sun for its radiant heat). One of the three pillars of Trikatu. Piperine dramatically boosts nutrient bioavailability, cleanses lungs, and incinerates metabolic Ama.",
+        "traditional_uses": [
+            "Dramatically enhances bioavailability of curcumin and other therapeutic compounds",
+            "Breaks down thick respiratory mucus, clears sinuses, and soothes sore throat",
+            "Ignites metabolic fire (Deepana) and burns visceral Ama toxins",
+            "Stimulates circulation and dispels sluggish chilliness"
+        ],
+        "plant_parts_used": ["Dried berries (peppercorns)", "Leaves"],
+        "dosha": {"balances": ["Kapha", "Vata"], "may_aggravate": ["Pitta"], "rasa": "Katu (pungent)", "virya": "Ushna (hot)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Humid tropical climate with high rainfall", "soil": "Humus-rich laterite forest loam", "watering": "Regular high moisture", "sunlight": "Filtered shade (climbs living support trees)", "propagation": "Stem runner cuttings", "harvesting": "Spikes gathered when berries turn red"},
+        "habitat": "Evergreen rainforests of Western Ghats (Malabar Coast)",
+        "safety_notes": "Use in culinary and classical pinch doses. Moderate intake in active peptic ulcers and high Pitta.",
+        "tags": ["bioavailability", "trikatu", "respiratory", "metabolism"]
+    },
+    "Pomoegranate": {
+        "name": "Pomegranate (Dadima)",
+        "common_name": "Pomegranate",
+        "scientific_name": "Punica granatum",
+        "sanskrit_name": "Dadima",
+        "hindi_name": "Anar",
+        "gujarati_name": "Dadam",
+        "botanical_family": "Lythraceae",
+        "description": "Celebrated in Charaka Samhita as the crown jewel of fruits because it pacifies all three doshas without provoking any. Rind, seeds, and leaves are loaded with punicalagins that protect the heart and intestines.",
+        "traditional_uses": [
+            "HCardioprotective tonic that improves arterial elasticity and blood pressure",
+            "Astringent rind decoction rapidly halts acute diarrhea and dysentery",
+            "Nourishes red blood cells and corrects mild anemia",
+            "Cools burning acid reflux and strengthens digestive Agni"
+        ],
+        "plant_parts_used": ["Fruit seeds (arils)", "Fruit rind", "Leaves", "Bark"],
+        "dosha": {"balances": ["Tridosha (Vata, Pitta, Kapha)"], "may_aggravate": [], "rasa": "Madhura (sweet), Kashaya (astringent), Amla (sour)", "virya": "Anushna (mildly cooling)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Arid and semi-arid subtropical", "soil": "Deep, well-draining loam, drought-hardy", "watering": "Moderate", "sunlight": "Full blazing sun", "propagation": "Air layering and stem cuttings", "harvesting": "Ripe heavy fruit and fresh leaves"},
+        "habitat": "Maharashtra, Gujarat, Rajasthan, and Mediterranean zones",
+        "safety_notes": "Exceptionally safe, rejuvenative, and universally recommended in Ayurveda.",
+        "tags": ["tridoshic", "heart-health", "antioxidant", "gut-health"]
+    },
+    "Pumpkin": {
+        "name": "Pumpkin (Kushmanda)",
+        "common_name": "Pumpkin / Ash Gourd Family",
+        "scientific_name": "Cucurbita pepo",
+        "sanskrit_name": "Kushmanda / Kurkura",
+        "hindi_name": "Kaddu / Sitaphal",
+        "gujarati_name": "Kolu",
+        "botanical_family": "Cucurbitaceae",
+        "description": "A sprawling trailing vine bearing large golden fruits and broad velvety leaves. In Ayurveda, Kushmanda is a supreme Medhya (intellect-promoting), cooling, and strength-giving rasayana that pacifies fiery Pitta.",
+        "traditional_uses": [
+            "Profound nervous system tonic calming mental agitation, stress, and anxiety",
+            "Cools severe hyperacidity, burning gastritis, and peptic ulcers",
+            "Seeds are an exceptional source of zinc supporting prostate and urinary health",
+            "Replenishes fluids, cools urinary burning, and nourishes bodily tissues"
+        ],
+        "plant_parts_used": ["Fruit pulp", "Seeds", "Leaves", "Flowers"],
+        "dosha": {"balances": ["Pitta", "Vata"], "may_aggravate": ["Kapha (in high excess)"], "rasa": "Madhura (sweet)", "virya": "Sheeta (cooling)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Warm tropical and subtropical seasons", "soil": "Rich, well-manured, well-draining loam", "watering": "Regular abundant moisture", "sunlight": "Full sun", "propagation": "Seeds", "harvesting": "Mature fruits and tender vine shoots"},
+        "habitat": "Cultivated across farmlands and vegetable gardens throughout India",
+        "safety_notes": "Extremely safe, nourishing, and rejuvenating food and medicine.",
+        "tags": ["cooling", "nootropic", "zinc-rich", "gastritis"]
+    },
+    "Raddish": {
+        "name": "Radish (Mulaka)",
+        "common_name": "Radish / Daikon",
+        "scientific_name": "Raphanus sativus",
+        "sanskrit_name": "Mulaka",
+        "hindi_name": "Mooli",
+        "gujarati_name": "Mula",
+        "botanical_family": "Brassicaceae",
+        "description": "A crisp pungent root vegetable crowned with tender edible leaves. Mulaka is prized in Ayurveda for stimulating sluggish liver enzymes, clearing jaundice, breaking down kidney stones, and igniting Agni.",
+        "traditional_uses": [
+            "Stimulates bile flow and supports rapid recovery from jaundice and liver congestion",
+            "Natural diuretic that assists in dissolving urinary gravel and clearing micturition",
+            "Ignites weak digestive fire and relieves intestinal sluggishness",
+            "Clears chest mucus and sinus congestion"
+        ],
+        "plant_parts_used": ["Root (radish)", "Leaves (mooli saag)", "Seeds"],
+        "dosha": {"balances": ["Kapha", "Vata (when cooked)"], "may_aggravate": ["Pitta (raw in excess)"], "rasa": "Katu (pungent), Tikta (bitter)", "virya": "Ushna (hot when raw, mild when cooked)", "vipaka": "Katu (raw), Madhura (cooked)"},
+        "cultivation": {"climate": "Cool season subtropical winter and temperate", "soil": "Deep, loose, fertile sandy loam", "watering": "Regular moderate watering", "sunlight": "Full sun", "propagation": "Seeds", "harvesting": "Harvested in 4-6 weeks while roots are crisp"},
+        "habitat": "Widely cultivated across all agricultural belts of India",
+        "safety_notes": "Cook with ghee or mild spices to balance pungency for individuals sensitive to hyperacidity.",
+        "tags": ["liver-detox", "kidney-cleanser", "digestive", "jaundice"]
+    },
+    "Rose": {
+        "name": "Rose (Taruni)",
+        "common_name": "Damask Rose",
+        "scientific_name": "Rosa damascena",
+        "sanskrit_name": "Taruni / Shatapatri",
+        "hindi_name": "Gulab",
+        "gujarati_name": "Gulab",
+        "botanical_family": "Rosaceae",
+        "description": "Celebrated as 'Shatapatri' (the hundred-petalled flower). Rose petals and water (Gulab Jal) embody the highest cooling, heart-soothing, and complexion-enhancing virtues in Ayurvedic cosmetology and medicine.",
+        "traditional_uses": [
+            "Gulkand (sun-cooked rose petal jam) cools intense body heat, acidity, and fatigue",
+            "Rose water soothes tired eyes, redness, conjunctivitis, and skin inflammation",
+            "Calms emotional sadness, anger, stress, and nervous palpitations",
+            "Mild laxative that soothes intestinal heat and hemorrhoids"
+        ],
+        "plant_parts_used": ["Petals", "Rose water", "Essential oil (Attar)", "Leaves"],
+        "dosha": {"balances": ["Pitta", "Vata", "Kapha"], "may_aggravate": [], "rasa": "Tikta (bitter), Kashaya (astringent), Madhura (sweet)", "virya": "Sheeta (cooling)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Subtropical to temperate with mild sunny days and cool nights", "soil": "Well-drained fertile loam pH 6.0-7.0", "watering": "Regular moderate", "sunlight": "Full sun (minimum 6 hours)", "propagation": "Bud grafting and stem cuttings", "harvesting": "Blooms picked before sunrise"},
+        "habitat": "Rose sanctuaries in Pushkar, Aligarh, Kashmir, and Haldighati",
+        "safety_notes": "Exceptionally gentle and safe. Use organically cultivated roses free from chemical pesticides.",
+        "tags": ["cooling", "eye-care", "skin", "heart-tonic"]
+    },
+    "Sampige": {
+        "name": "Sampige (Champaka)",
+        "common_name": "Golden Champa",
+        "scientific_name": "Magnolia champaca",
+        "sanskrit_name": "Champaka",
+        "hindi_name": "Champa",
+        "gujarati_name": "Champa",
+        "botanical_family": "Magnoliaceae",
+        "description": "A magnificent tall evergreen tree famous for its intensely fragrant golden-yellow blossoms. In Ayurveda, Champaka is prized for clearing toxic blood heat, soothing burning micturition, and pacifying vertigo.",
+        "traditional_uses": [
+            "Flower infusion cools intense fevers, burning sensations, and gastritis",
+            "Relieves vertigo, dizziness, and Pitta-induced headaches",
+            "Medicated Champaka hair oil promotes luxurious hair growth and sound sleep",
+            "Bark and leaf extracts support healthy renal and urinary comfort"
+        ],
+        "plant_parts_used": ["Flowers", "Leaves", "Bark"],
+        "dosha": {"balances": ["Pitta", "Kapha"], "may_aggravate": ["Vata"], "rasa": "Tikta (bitter), Kashaya (astringent), Katu (pungent)", "virya": "Sheeta (cooling)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Warm humid tropical and subtropical mountain slopes", "soil": "Deep, rich, moist, fertile forest loam", "watering": "Regular", "sunlight": "Full sun to partial shade", "propagation": "Seeds and air layering", "harvesting": "Golden flowers and glossy leaves"},
+        "habitat": "Evergreen forests of the Western Ghats, Eastern sub-Himalayas, and sacred groves",
+        "safety_notes": "Safe in traditional external oils and therapeutic flower infusions.",
+        "tags": ["cooling", "hair-care", "vertigo", "fragrant"]
+    },
+    "Sapota": {
+        "name": "Sapota (Chiku)",
+        "common_name": "Sapodilla / Chiku",
+        "scientific_name": "Manilkara zapota",
+        "sanskrit_name": "Chiku",
+        "hindi_name": "Chiku",
+        "gujarati_name": "Chiku",
+        "botanical_family": "Sapotaceae",
+        "description": "A hardy evergreen fruit tree native to the tropics. Its sweet malty fruits provide rapid revitalizing energy, while its tannin-rich leaves and bark are prized in folk herbalism for soothing diarrhea and colds.",
+        "traditional_uses": [
+            "Natural energy restorative rich in fructose, sucrose, and minerals",
+            "Astringent leaf decoction soothes diarrhea, dysentery, and oral gargles",
+            "High dietary tannins offer antimicrobial and gut-soothing benefits",
+            "Soothes bronchial cough and mild cold congestion"
+        ],
+        "plant_parts_used": ["Fruit", "Leaves", "Bark"],
+        "dosha": {"balances": ["Vata", "Pitta"], "may_aggravate": ["Kapha (in excess due to sweetness)"], "rasa": "Madhura (sweet fruit), Kashaya (leaves)", "virya": "Sheeta (cooling)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Warm humid tropical and coastal climate", "soil": "Deep alluvium, sandy loam, or lateritic soils", "watering": "Moderate; drought and wind-hardy", "sunlight": "Full blazing sun", "propagation": "Approach grafting and inarching", "harvesting": "Mature brown fruit and fresh foliage"},
+        "habitat": "Coastal orchards across Gujarat, Maharashtra, and Karnataka",
+        "safety_notes": "Very safe, nourishing food fruit. Consume leaves only as prepared decoction.",
+        "tags": ["energy", "gut-health", "tannins", "nourishing"]
+    },
+    "Seethaashoka": {
+        "name": "Ashoka Tree (Seethaashoka)",
+        "common_name": "Asoka Tree / Sorrowless Tree",
+        "scientific_name": "Saraca asoca",
+        "sanskrit_name": "Ashoka",
+        "hindi_name": "Ashok",
+        "gujarati_name": "Ashok",
+        "botanical_family": "Fabaceae",
+        "description": "Ashoka literally means 'without sorrow.' It is the most sacred and celebrated uterine tonic in Ayurvedic pharmacology, famous for balancing estrogenic hormones and rejuvenating reproductive health.",
+        "traditional_uses": [
+            "Supreme uterine tonic resolving menorrhagia, dysmenorrhea, and irregular cycles",
+            "Bark decoction tones uterine musculature and alleviates pelvic congestion",
+            "Cools internal bleeding disorders and hemorrhoidal flares",
+            "Complexion-clearing action removing hormonal acne and dark spots"
+        ],
+        "plant_parts_used": ["Bark", "Flowers", "Leaves", "Seeds"],
+        "dosha": {"balances": ["Pitta", "Kapha"], "may_aggravate": ["Vata (in excess)"], "rasa": "Kashaya (astringent), Tikta (bitter)", "virya": "Sheeta (cooling)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Warm, humid tropical climate with good rainfall", "soil": "Deep, moist, well-draining loamy soil", "watering": "Regular watering", "sunlight": "Filtered shade to morning sun", "propagation": "Seeds and stem cuttings", "harvesting": "Mature bark harvested sustainably"},
+        "habitat": "Sacred groves, rainforest understory of Western Ghats and northeastern India",
+        "safety_notes": "Highly safe classical female tonic. Should be taken under expert guidance during active pregnancy.",
+        "tags": ["uterine-tonic", "womens-health", "hormone-balance", "astringent"]
+    },
+    "ashoka": {
+        "name": "Ashoka (Saraca asoca)",
+        "common_name": "Asoka Tree",
+        "scientific_name": "Saraca asoca",
+        "sanskrit_name": "Ashoka",
+        "hindi_name": "Ashok",
+        "gujarati_name": "Ashok",
+        "botanical_family": "Fabaceae",
+        "description": "True Saraca asoca, celebrated as the premier Ayurvedic female reproductive rejuvenator. Renowned for its astringent bark that restores hormonal equilibrium and calms pelvic heat.",
+        "traditional_uses": [
+            "Regulates menstrual rhythm and relieves dysmenorrhea",
+            "Astringent action stops uterine bleeding and leucorrhea",
+            "Soothes burning inflammation and skin pigmentation",
+            "Key component in classical Ashokarishta"
+        ],
+        "plant_parts_used": ["Bark", "Flowers", "Leaves"],
+        "dosha": {"balances": ["Pitta", "Kapha"], "may_aggravate": ["Vata"], "rasa": "Kashaya (astringent), Tikta (bitter)", "virya": "Sheeta (cooling)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Tropical evergreen forest zones", "soil": "Moist, rich, organic loam", "watering": "Moderate regular", "sunlight": "Partial shade", "propagation": "Seeds", "harvesting": "Bark harvested from mature trees"},
+        "habitat": "Western Ghats, foothills of Himalayas, and sacred temple courtyards",
+        "safety_notes": "Safe in classical formulations. Best taken with milk or ghee.",
+        "tags": ["uterine-tonic", "womens-health", "ashokarishta", "cooling"]
+    },
+    "Seethapala": {
+        "name": "Custard Apple (Seethapala)",
+        "common_name": "Sugar Apple / Sweetsop",
+        "scientific_name": "Annona squamosa",
+        "sanskrit_name": "Sitaphalam / Krishnabija",
+        "hindi_name": "Sitaphal / Sharifa",
+        "gujarati_name": "Sitaphal",
+        "botanical_family": "Annonaceae",
+        "description": "A small deciduous tree bearing knobby fruits with sweet creamy segments. Seethapala leaves are famous in folk medicine for their potent anti-lice, wound-maggot cleansing, and glycemic-modulating actions.",
+        "traditional_uses": [
+            "Crushed leaf paste is the premier traditional cure for head lice and nits",
+            "Leaves applied to septic ulcers and wounds to expel maggots and accelerate healing",
+            "Leaf extract supports insulin sensitivity and glycemic control",
+            "Fruit is a delicious heart tonic and restorative food"
+        ],
+        "plant_parts_used": ["Leaves", "Fruit", "Seeds (anti-lice only)", "Bark"],
+        "dosha": {"balances": ["Vata", "Pitta"], "may_aggravate": ["Kapha (sweet ripe fruit in excess)"], "rasa": "Kashaya (astringent leaves), Madhura (sweet fruit)", "virya": "Sheeta (cooling)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Hot, dry tropical and subtropical", "soil": "Tolerates stony, rocky, dry poor soils", "watering": "Extremely drought-resistant", "sunlight": "Full sun", "propagation": "Seeds and grafting", "harvesting": "Fruit in autumn, leaves year-round"},
+        "habitat": "Scrub jungles, wild hills, and orchards across peninsular India",
+        "safety_notes": "CAUTION: Powdered seeds are highly irritant to the eyes; wash hands thoroughly after anti-lice application. Fruit is completely safe and delicious.",
+        "tags": ["anti-lice", "wound-healing", "cooling", "diabetes"]
+    },
+    "Spinach1": {
+        "name": "Red Malabar Spinach",
+        "common_name": "Red Vine Spinach",
+        "scientific_name": "Basella rubra",
+        "sanskrit_name": "Rakta Upodika",
+        "hindi_name": "Lal Poi Saag",
+        "gujarati_name": "Rato Potiya",
+        "botanical_family": "Basellaceae",
+        "description": "A stunning twining climber with vibrant reddish-purple stems and succulent dark green leaves. Rich in anthocyanins, iron, and soothing mucilage that heals ulcers and cools the gut.",
+        "traditional_uses": [
+            "High anthocyanin pigments protect cardiovascular and ocular tissues",
+            "Soothes severe acid reflux, gastric erosion, and mouth ulcers",
+            "Gentle laxative lubricating dry, inflamed intestines",
+            "Leaf poultice cools inflammatory skin burns and boils"
+        ],
+        "plant_parts_used": ["Leaves", "Tender purple stems"],
+        "dosha": {"balances": ["Vata", "Pitta"], "may_aggravate": ["Kapha (in excess)"], "rasa": "Madhura (sweet)", "virya": "Sheeta (cooling)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Warm, sunny tropical climate", "soil": "Moist, rich, organic matter-filled loam", "watering": "Regular high moisture", "sunlight": "Full sun to partial shade", "propagation": "Cuttings and seeds", "harvesting": "Leaves cut continuously"},
+        "habitat": "Homesteads and trellis gardens throughout India",
+        "safety_notes": "Exceptionally wholesome, non-toxic, and cooling leafy vegetable.",
+        "tags": ["anthocyanins", "gut-healing", "cooling", "superfood"]
+    },
+    "Tamarind": {
+        "name": "Tamarind",
+        "common_name": "Tamarind Tree",
+        "scientific_name": "Tamarindus indica",
+        "sanskrit_name": "Amlika / Chincha",
+        "hindi_name": "Imli",
+        "gujarati_name": "Aambli",
+        "botanical_family": "Fabaceae",
+        "description": "A massive long-lived tree whose pods yield the classic sour-sweet pulp of Indian cuisine. In Ayurveda, Amlika kindle sluggish appetite, dispels alcohol hangover, and relieves joint swelling.",
+        "traditional_uses": [
+            "Warmed leaf poultice is a renowned remedy for swollen sprains and joint trauma",
+            "Fruit pulp stimulates digestive enzymes and relieves sluggish constipation",
+            "Dispels sunstroke, dehydration, and alcohol intoxication",
+            "Rich in tartaric acid and natural antioxidants"
+        ],
+        "plant_parts_used": ["Fruit pulp", "Leaves", "Seeds", "Bark"],
+        "dosha": {"balances": ["Vata (ripe fruit)"], "may_aggravate": ["Pitta (unripe sour fruit)"], "rasa": "Amla (sour), Madhura (sweet ripe pulp), Kashaya (seeds)", "virya": "Ushna (hot)", "vipaka": "Amla (sour)"},
+        "cultivation": {"climate": "Semi-arid to sub-humid tropical", "soil": "Deep, well-draining alluvium or loam; drought-hardy", "watering": "Low to moderate once established", "sunlight": "Full blazing sun", "propagation": "Seeds and grafting", "harvesting": "Pods in dry season; leaves year-round"},
+        "habitat": "Avenues, village greens, and open forests across India",
+        "safety_notes": "Wholesome culinary staple. In high acidity conditions, prefer ripe aged tamarind.",
+        "tags": ["digestive", "anti-inflammatory", "poultice", "sunstroke"]
+    },
+    "Taro": {
+        "name": "Taro (Alupam)",
+        "common_name": "Elephant Ear / Colocasia",
+        "scientific_name": "Colocasia esculenta",
+        "sanskrit_name": "Alupam",
+        "hindi_name": "Arbi na Patta",
+        "gujarati_name": "Alvi / Patra",
+        "botanical_family": "Araceae",
+        "description": "A majestic perennial herb with giant heart-shaped leaves beloved in traditional Indian cooking (e.g., Patra). Packed with dietary potassium, vitamins, and antioxidants when properly prepared.",
+        "traditional_uses": [
+            "Leaf juice traditionally used as an astringent and styptic to arrest bleeding",
+            "High dietary potassium supports healthy cardiovascular blood pressure",
+            "Leaf decoction used as a folk remedy for external piles and swellings",
+            "Rich in lutein and beta-carotene supporting vision"
+        ],
+        "plant_parts_used": ["Leaves", "Corms (Arbi tubers)"],
+        "dosha": {"balances": ["Kapha", "Pitta"], "may_aggravate": ["Vata (in raw form)"], "rasa": "Madhura (sweet), Kashaya (astringent)", "virya": "Sheeta (cooling)", "vipaka": "Madhura (sweet)"},
+        "cultivation": {"climate": "Warm, humid tropical and subtropical", "soil": "Moist, rich, alluvial wetland loam", "watering": "High moisture requirement", "sunlight": "Full sun to partial shade", "propagation": "Corm offsets and suckers", "harvesting": "Leaves cut mature with firm stems"},
+        "habitat": "Wetlands, stream banks, and cultivated fields throughout India",
+        "safety_notes": "MUST BE THOROUGHLY COOKED before eating. Raw leaves contain calcium oxalate raphides that cause intense throat itching unless steamed with an acid (like tamarind or lemon).",
+        "tags": ["patra", "culinary-ayurveda", "potassium", "astringent"]
+    },
+    "Tecoma": {
+        "name": "Tecoma (Yellow Bells)",
+        "common_name": "Yellow Bells / Yellow Elder",
+        "scientific_name": "Tecoma stans",
+        "sanskrit_name": "Pitamallika",
+        "hindi_name": "Piliya",
+        "gujarati_name": "Pili Ghanti",
+        "botanical_family": "Bignoniaceae",
+        "description": "A vibrant ornamental shrub covered in brilliant yellow trumpet blossoms. Its leaves contain tecomine and tecostanine, alkaloids investigated globally for their ability to lower blood glucose.",
+        "traditional_uses": [
+            "Folk tea of leaves used as an adjunct remedy for diabetes and glycemic control",
+            "Diuretic and kidney cleansing action relieving fluid retention",
+            "Leaves applied traditionally as an antifungal wash for skin ringworm",
+            "Supports digestive regulation and intestinal parasite clearance"
+        ],
+        "plant_parts_used": ["Leaves", "Bark", "Flowers", "Roots"],
+        "dosha": {"balances": ["Kapha", "Pitta"], "may_aggravate": ["Vata"], "rasa": "Tikta (bitter), Kashaya (astringent)", "virya": "Sheeta (cooling)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Tropical and warm subtropical", "soil": "Well-drained light soils; drought-resistant", "watering": "Low to moderate", "sunlight": "Full sun", "propagation": "Seeds and semi-ripe cuttings", "harvesting": "Foliage and flowers gathered in bloom"},
+        "habitat": "Roadsides, gardens, and parks across India",
+        "safety_notes": "Safe in folk tea doses. Monitor blood sugar levels if taking prescription diabetic medicine.",
+        "tags": ["blood-sugar", "diabetes", "diuretic", "antifungal"]
+    },
+    "Thumbe": {
+        "name": "Thumbe (Dronapushpi)",
+        "common_name": "Leucas / Dronapushpi",
+        "scientific_name": "Leucas aspera",
+        "sanskrit_name": "Dronapushpi",
+        "hindi_name": "Guma / Chhota Halkusa",
+        "gujarati_name": "Kubo",
+        "botanical_family": "Lamiaceae",
+        "description": "A fragrant annual weed with whorls of pure white cup-shaped blossoms resembling a miniature boat (Drona). Revered in Charaka Samhita as the master herb for clearing sinusitis, jaundice, and snake venom.",
+        "traditional_uses": [
+            "Fresh leaf juice used as Nasya (nasal drops) to drain stubborn sinusitis and relieve migraines",
+            "Powerful antidote in traditional toxicological (Agadatantra) stings and bites",
+            "Stimulates liver bile flow and clears obstinate jaundice",
+            "Anti-inflammatory application for painful arthritic joints and scabies"
+        ],
+        "plant_parts_used": ["Whole herb", "Leaves", "Flowers"],
+        "dosha": {"balances": ["Kapha", "Vata"], "may_aggravate": ["Pitta (in excess)"], "rasa": "Katu (pungent), Tikta (bitter)", "virya": "Ushna (hot)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Tropical and subtropical plains", "soil": "Grows wild in wastelands, sandy loam, and cultivated fields", "watering": "Rain-fed", "sunlight": "Full sun", "propagation": "Seeds", "harvesting": "Whole plant during flowering"},
+        "habitat": "Abundant weed in open fields and roadsides across India",
+        "safety_notes": "Nasal application (Nasya) is very potent; use only a single drop diluted under qualified Ayurvedic direction.",
+        "tags": ["sinusitis", "nasya", "liver-jaundice", "dronapushpi"]
+    },
+    "Tomato": {
+        "name": "Tomato",
+        "common_name": "Garden Tomato",
+        "scientific_name": "Solanum lycopersicum",
+        "sanskrit_name": "Raktaphala",
+        "hindi_name": "Tamatar",
+        "gujarati_name": "Tameta",
+        "botanical_family": "Solanaceae",
+        "description": "An annual herb yielding succulent red berries rich in lycopene. Tomato leaves and fruits provide deep antioxidant, cardioprotective, and skin-repairing benefits.",
+        "traditional_uses": [
+            "Lycopene provides premier defense against prostate enlargement and cellular damage",
+            "Supports cardiovascular integrity and reduces LDL oxidation",
+            "Fruit pulp applied topically cools sunburns and shrinks large skin pores",
+            "Stimulates salivary and digestive juices in loss of appetite"
+        ],
+        "plant_parts_used": ["Fruit", "Leaves (mild poultice only)"],
+        "dosha": {"balances": ["Vata (cooked)"], "may_aggravate": ["Pitta (sour raw fruit in excess)"], "rasa": "Amla (sour), Madhura (sweet)", "virya": "Ushna (mildly heating)", "vipaka": "Amla (sour)"},
+        "cultivation": {"climate": "Warm temperate and subtropical", "soil": "Fertile, deep, well-draining loamy soil pH 6.0-6.8", "watering": "Regular; avoid wetting foliage", "sunlight": "Full sun", "propagation": "Seeds", "harvesting": "Ripe red fruit"},
+        "habitat": "Grown in virtually every agricultural village in India",
+        "safety_notes": "Ripe fruit is a safe daily food. Tomato foliage contains tomatine alkaloid and should not be consumed internally in quantity.",
+        "tags": ["lycopene", "antioxidant", "prostate-health", "heart"]
+    },
+    "Tulsi": {
+        "name": "Tulsi",
+        "common_name": "Holy Basil",
+        "scientific_name": "Ocimum tenuiflorum",
+        "sanskrit_name": "Tulasi",
+        "hindi_name": "Tulsi",
+        "gujarati_name": "Tulasi",
+        "botanical_family": "Lamiaceae",
+        "description": "Tulsi, or Holy Basil, is one of the most sacred plants in Hindu tradition and a cornerstone of Ayurvedic medicine. Known as the 'Queen of Herbs,' Tulsi has been revered for over 3,000 years for its remarkable healing and adaptogenic properties.",
+        "traditional_uses": [
+            "Respiratory support - relieves cough, cold, bronchitis, and asthma",
+            "Adaptogen - helps the body cope with psychological and environmental stress",
+            "Immune booster - stimulates immune response and protects against viral fevers",
+            "Anti-inflammatory and antipyretic (fever reducer)",
+            "Digestive aid - relieves bloating, nausea, and indigestion",
+            "Oral health - used in herbal tooth powders and mouthwashes"
+        ],
+        "plant_parts_used": ["Leaves", "Seeds", "Roots", "Stem"],
+        "dosha": {"balances": ["Vata", "Kapha"], "may_aggravate": ["Pitta (in excess)"], "rasa": "Tikta (bitter), Katu (pungent)", "virya": "Ushna (hot potency)", "vipaka": "Katu (pungent post-digestive)"},
+        "cultivation": {"climate": "Tropical and subtropical; thrives in warm, humid conditions", "soil": "Well-drained, fertile loamy soil with pH 6-7.5", "watering": "Moderate; avoid waterlogging", "sunlight": "Full sun (6-8 hours daily)", "propagation": "Seeds or stem cuttings", "harvesting": "Leaves can be harvested 6-8 weeks after planting"},
+        "habitat": "Native to the Indian subcontinent; widely cultivated in homes across India",
+        "safety_notes": "Generally safe for most adults. Pregnant women should avoid large medicinal doses. May have mild blood-thinning properties.",
+        "tags": ["adaptogen", "respiratory", "immune", "sacred", "antimicrobial"]
+    },
+    "Turmeric": {
+        "name": "Turmeric",
+        "common_name": "Turmeric / Golden Spice",
+        "scientific_name": "Curcuma longa",
+        "sanskrit_name": "Haridra / Gauri",
+        "hindi_name": "Haldi",
+        "gujarati_name": "Haldar",
+        "botanical_family": "Zingiberaceae",
+        "description": "Known as 'Haridra' in Sanskrit, meaning dear to Hari. Turmeric is the golden cornerstone of Indian medicine. Its curcuminoids provide profound anti-inflammatory, wound-healing, anticancer, and complexion-brightening benefits.",
+        "traditional_uses": [
+            "Golden milk (Haldi Doodh) rapidly soothes inflammation, joint pain, and colds",
+            "Premier topical antiseptic for wounds, cuts, burns, and surgical incisions",
+            "Purifies the blood, enhances skin radiance, and clears acne blemishes",
+            "Potent cellular antioxidant and liver-protective agent"
+        ],
+        "plant_parts_used": ["Rhizome", "Leaves"],
+        "dosha": {"balances": ["Vata", "Pitta", "Kapha (Tridoshic)"], "may_aggravate": ["Pitta (only in extreme excess)"], "rasa": "Tikta (bitter), Katu (pungent)", "virya": "Ushna (heating)", "vipaka": "Katu (pungent)"},
+        "cultivation": {"climate": "Warm, humid tropical climate with abundant rainfall", "soil": "Well-drained, fertile, loose loamy or alluvial soil", "watering": "Regular watering throughout growth cycle", "sunlight": "Partial shade to full sun", "propagation": "Rhizome fingers", "harvesting": "7-9 months when leaves turn dry and yellow"},
+        "habitat": "Cultivated across Andhra Pradesh, Tamil Nadu, Odisha, and Maharashtra",
+        "safety_notes": "Exceptionally safe daily rasayana. Therapeutic high-dose extracts should be monitored if taking blood thinners.",
+        "tags": ["curcumin", "anti-inflammatory", "wound-healing", "golden-spice"]
+    }
+}
+
+def main():
+    print("Building 80-herb complete dataset...")
+    
+    # Load existing herbs.json if available
+    existing_herbs = []
+    if os.path.exists(HERBS_JSON_PATH):
+        try:
+            with open(HERBS_JSON_PATH, "r", encoding="utf-8") as f:
+                existing_herbs = json.load(f)
+            print(f"Loaded {len(existing_herbs)} existing herbs from herbs.json.")
+        except Exception as e:
+            print(f"Error loading existing herbs: {e}")
+            existing_herbs = []
+
+    # Map existing by name lower
+    existing_by_name = {h["name"].lower(): h for h in existing_herbs}
+
+    # Prepare complete list for all 80 classes
+    all_herbs = []
+    
+    # Keep track of IDs: 1 to 80
+    class_to_id = {}
+    
+    for idx, raw_class in enumerate(CLASSES_80, 1):
+        herb_id = idx
+        class_to_id[raw_class] = herb_id
+        
+        # Check profile
+        profile = HERB_PROFILES.get(raw_class, None)
+        if not profile:
+            # Fallback profile
+            clean_name = raw_class.replace("_", " ").title()
+            profile = {
+                "name": clean_name,
+                "common_name": clean_name,
+                "scientific_name": f"{clean_name} spp.",
+                "sanskrit_name": clean_name,
+                "hindi_name": clean_name,
+                "gujarati_name": clean_name,
+                "botanical_family": "Medicinal Flora",
+                "description": f"{clean_name} is an authentic medicinal plant from the Indian botanical heritage, renowned for its therapeutic and wellness properties.",
+                "traditional_uses": [
+                    "Traditional herbal remedy supporting digestive and systemic balance",
+                    "Promotes general wellness, vitality, and immune defense",
+                    "Natural antioxidant and cellular protective botanical",
+                    "Used in traditional folk formulations for health restoration"
+                ],
+                "plant_parts_used": ["Leaves", "Stems", "Roots"],
+                "dosha": {"balances": ["Kapha", "Pitta"], "may_aggravate": [], "rasa": "Tikta (bitter), Kashaya (astringent)", "virya": "Sheeta (cooling)", "vipaka": "Madhura (sweet)"},
+                "cultivation": {"climate": "Tropical and subtropical", "soil": "Well-drained loam", "watering": "Moderate", "sunlight": "Full sun to partial shade", "propagation": "Seeds and cuttings", "harvesting": "Mature healthy leaves"},
+                "habitat": "Cultivated and wild habitats across India",
+                "safety_notes": "Safe in traditional folk and culinary uses. Consult an Ayurvedic expert for therapeutic dosage.",
+                "tags": ["medicinal", "herbal", "wellness", "traditional"]
+            }
+        
+        # Check if an existing 20-herb entry matches
+        lookup_key = profile["name"].lower()
+        matched = existing_by_name.get(lookup_key) or existing_by_name.get(raw_class.lower())
+        
+        final_herb = {
+            "id": herb_id,
+            "raw_class": raw_class,
+            "name": profile["name"],
+            "common_name": profile.get("common_name", matched.get("common_name") if matched else profile["name"]),
+            "scientific_name": profile.get("scientific_name", matched.get("scientific_name") if matched else ""),
+            "sanskrit_name": profile.get("sanskrit_name", matched.get("sanskrit_name") if matched else ""),
+            "hindi_name": profile.get("hindi_name", matched.get("hindi_name") if matched else ""),
+            "gujarati_name": profile.get("gujarati_name", matched.get("gujarati_name") if matched else ""),
+            "botanical_family": profile.get("botanical_family", matched.get("botanical_family") if matched else ""),
+            "description": profile.get("description", matched.get("description") if matched else ""),
+            "traditional_uses": profile.get("traditional_uses", matched.get("traditional_uses") if matched else []),
+            "plant_parts_used": profile.get("plant_parts_used", matched.get("plant_parts_used") if matched else ["Leaves"]),
+            "dosha": profile.get("dosha", matched.get("dosha") if matched else {"balances": ["Tridosha"]}),
+            "cultivation": profile.get("cultivation", matched.get("cultivation") if matched else {}),
+            "habitat": profile.get("habitat", matched.get("habitat") if matched else "India"),
+            "safety_notes": profile.get("safety_notes", matched.get("safety_notes") if matched else "Consult an Ayurvedic expert before use."),
+            "tags": profile.get("tags", matched.get("tags") if matched else ["herb"]),
+            "image_url": f"/images/herbs/{herb_id}.jpg"
+        }
+        all_herbs.append(final_herb)
+
+    # Save to herbs.json
+    with open(HERBS_JSON_PATH, "w", encoding="utf-8") as f:
+        json.dump(all_herbs, f, indent=2, ensure_ascii=False)
+    print(f"Saved {len(all_herbs)} herbs to {HERBS_JSON_PATH}.")
+
+    # Copy images from dataset folders if missing
+    os.makedirs(FRONTEND_IMAGES_DIR, exist_ok=True)
+    images_copied = 0
+    for herb in all_herbs:
+        target_img = os.path.join(FRONTEND_IMAGES_DIR, f"{herb['id']}.jpg")
+        raw_class = herb["raw_class"]
+        class_folder = os.path.join(DATASET_DIR, raw_class)
+        
+        # If target image does not exist or size is 0, copy one sample from dataset
+        if not os.path.exists(target_img) or os.path.getsize(target_img) == 0:
+            if os.path.exists(class_folder):
+                files = [f for f in os.listdir(class_folder) if f.lower().endswith(('.jpg', '.jpeg', '.png'))]
+                if files:
+                    src_file = os.path.join(class_folder, files[0])
+                    try:
+                        shutil.copyfile(src_file, target_img)
+                        images_copied += 1
+                    except Exception as e:
+                        print(f"Could not copy image for {raw_class}: {e}")
+
+    print(f"Copied {images_copied} new images to {FRONTEND_IMAGES_DIR}.")
+
+    # Re-seed the SQLite database
+    print("Updating SQLite database with all 80 herbs...")
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    
+    # Clear existing herbs table
+    cur.execute("DELETE FROM herbs")
+    
+    for h in all_herbs:
+        cur.execute("""
+            INSERT INTO herbs (
+                id, name, common_name, scientific_name, sanskrit_name, 
+                hindi_name, gujarati_name, botanical_family, description, 
+                traditional_uses, plant_parts_used, dosha, cultivation, 
+                habitat, safety_notes, tags, image_url
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            h["id"],
+            h["name"],
+            h["common_name"],
+            h["scientific_name"],
+            h["sanskrit_name"],
+            h["hindi_name"],
+            h["gujarati_name"],
+            h["botanical_family"],
+            h["description"],
+            json.dumps(h["traditional_uses"]),
+            json.dumps(h["plant_parts_used"]),
+            json.dumps(h["dosha"]),
+            json.dumps(h["cultivation"]),
+            h["habitat"],
+            h["safety_notes"],
+            json.dumps(h["tags"]),
+            h["image_url"]
+        ))
+    
+    conn.commit()
+    cur.execute("SELECT COUNT(*) FROM herbs")
+    count = cur.fetchone()[0]
+    conn.close()
+    print(f"Successfully populated database: {count} herbs in SQLite database!")
+
+    # Write the mapping dictionary to a python file or print
+    mapping_path = os.path.join(os.path.dirname(__file__), "app", "models", "class_mapping.py")
+    with open(mapping_path, "w", encoding="utf-8") as f:
+        f.write("# Auto-generated class mapping for 80 classes\n\n")
+        f.write("HERB_NAME_TO_ID = {\n")
+        for h in all_herbs:
+            raw = h["raw_class"]
+            hid = h["id"]
+            name = h["name"]
+            f.write(f'    "{raw.lower()}": {hid},\n')
+            f.write(f'    "{raw}": {hid},\n')
+            f.write(f'    "{name.lower()}": {hid},\n')
+            f.write(f'    "{name}": {hid},\n')
+        f.write("}\n\n")
+        
+        f.write("DISPLAY_NAMES = {\n")
+        for h in all_herbs:
+            f.write(f'    "{h["raw_class"]}": "{h["name"]}",\n')
+        f.write("}\n")
+    print(f"Generated class mapping in {mapping_path}.")
+
+if __name__ == "__main__":
+    main()

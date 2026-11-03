@@ -102,14 +102,14 @@ const HeroSection = () => {
               className="btn-outline group flex items-center justify-center gap-2 text-base px-8 py-3.5"
             >
               <BookOpen className="w-5 h-5" />
-              Explore 20+ Herbs
+              Explore 80 Herbs
             </Link>
           </motion.div>
 
           {/* Stats Bar */}
           <motion.div variants={itemVariants} className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full">
             {[
-              { icon: Leaf, label: '20+ Herbs Database' },
+              { icon: Leaf, label: '80 Herbs Database' },
               { icon: Target, label: '95%+ Accuracy' },
               { icon: ScanEye, label: 'Grad-CAM AI' },
               { icon: Brain, label: 'Gemini RAG' },

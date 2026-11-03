@@ -29,7 +29,7 @@ export default function KnowledgeBasePage() {
               <span className="text-xs font-semibold uppercase tracking-wider text-[#e8a045]">Ayurvedic Directory</span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-4 font-serif text-[#e8a045]" style={{ fontFamily: '"Playfair Display", serif' }}>
-              20+ Herbs Knowledge Base
+              80 Medicinal Herbs Knowledge Base
             </h1>
             <p className="max-w-xl mx-auto text-base text-[rgba(253,246,227,0.7)]">
               Search and explore authentic botanical profiles, dosha balances, plant parts used, and traditional Ayurvedic remedies.

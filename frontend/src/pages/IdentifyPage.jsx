@@ -33,11 +33,23 @@ export default function IdentifyPage() {
       setUploadedImageUrl(file);
     }
 
-    if (result && result.herb_id) {
+    if (result) {
       setIsLoading(true);
       try {
-        const response = await axios.get(`${API_URL}/api/herb/${result.herb_id}`);
-        setHerbData(response.data);
+        let response = null;
+        if (result.herb_id) {
+          try {
+            response = await axios.get(`${API_URL}/api/herb/${result.herb_id}`);
+          } catch (idErr) {
+            console.warn(`Could not load herb by id ${result.herb_id}, attempting lookup by name...`);
+          }
+        }
+        if (!response && result.herb_name) {
+          response = await axios.get(`${API_URL}/api/herb/name/${encodeURIComponent(result.herb_name)}`);
+        }
+        if (response && response.data) {
+          setHerbData(response.data);
+        }
       } catch (err) {
         console.error('Failed to fetch herb details:', err);
       } finally {

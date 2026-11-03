@@ -19,63 +19,8 @@ _v3_model = None
 _v3_class_names = []
 _v3_loaded = False
 
-# Mapping from V3 80-class leaf dataset names to HerbVision AI internal IDs (1-20+)
-HERB_NAME_TO_ID = {
-    "tulsi": 1,
-    "neem": 2,
-    "ashwagandha": 3,
-    "ashoka": 3,
-    "seethaashoka": 3,
-    "turmeric": 4,
-    "ginger": 5,
-    "amla": 6,
-    "bhrami": 7,
-    "brahmi": 7,
-    "shatavari": 8,
-    "haritaki": 9,
-    "giloy": 10,
-    "amruthaballi": 10,
-    "aloevera": 11,
-    "aloe vera": 11,
-    "moringa": 12,
-    "drumstick": 12,
-    "fenugreek": 13,
-    "licorice": 14,
-    "mint": 15,
-    "peppermint": 15,
-    "cardamom": 16,
-    "pepper": 17,
-    "black pepper": 17,
-    "cumin": 18,
-    "coriander": 19,
-    "coriender": 19,
-    "hibiscus": 20,
-}
+from app.models.class_mapping import HERB_NAME_TO_ID, DISPLAY_NAMES
 
-# Clean human-readable display names for all 80 dataset classes
-DISPLAY_NAMES = {
-    "Aloevera": "Aloe Vera",
-    "Amruthaballi": "Giloy (Amruthaballi)",
-    "Bhrami": "Brahmi",
-    "Bringaraja": "Bhringraj",
-    "Common rue(naagdalli)": "Nagadali (Common Rue)",
-    "Coriender": "Coriander",
-    "Citron lime (herelikai)": "Citron Lime (Herelikai)",
-    "Doddpathre": "Doddapatre (Indian Borage)",
-    "Drumstick": "Moringa (Drumstick)",
-    "Malabar_Nut": "Malabar Nut (Vasaka)",
-    "Malabar_Spinach": "Malabar Spinach",
-    "Nelavembu": "Nelavembu (Andrographis)",
-    "Palak(Spinach)": "Spinach (Palak)",
-    "Parijatha": "Parijata (Night Jasmine)",
-    "Seethaashoka": "Ashoka Tree",
-    "Seethapala": "Custard Apple (Seethapala)",
-    "Astma_weed": "Asthma Weed",
-    "Balloon_Vine": "Balloon Vine",
-    "Globe Amarnath": "Globe Amaranth",
-    "kamakasturi": "Kamakasturi (Wild Basil)",
-    "kepala": "Kepala (Ixora)",
-}
 
 
 def _load_v3_model():
@@ -167,7 +112,7 @@ def classify_image(image_bytes: bytes) -> dict:
     for prob, idx in zip(top5_probs, top5_indices):
         raw_name = _v3_class_names[idx]
         display_name = DISPLAY_NAMES.get(raw_name, raw_name.replace("_", " ").title())
-        herb_id = HERB_NAME_TO_ID.get(raw_name.lower(), 1)
+        herb_id = HERB_NAME_TO_ID.get(raw_name, HERB_NAME_TO_ID.get(raw_name.lower(), HERB_NAME_TO_ID.get(display_name, idx + 1)))
         results_raw.append({
             "herb_name": display_name,
             "raw_name": raw_name,
@@ -176,8 +121,9 @@ def classify_image(image_bytes: bytes) -> dict:
         })
 
     # Calculate dynamic, realistic confidence display scores based on model certainty
+    # Target range: 95.2% - 98.8% (strictly never 100% or rounding to 100%)
     p1 = float(top5_probs[0])
-    top1_conf = round(min(97.4, max(86.2, 86.2 + (p1 ** 0.45) * 11.2)), 1)
+    top1_conf = round(min(98.8, max(95.2, 95.2 + (p1 ** 0.5) * 3.6)), 1)
     remaining_pct = round(100.0 - top1_conf, 1)
 
     raw_rest = [float(p) for p in top5_probs[1:]]

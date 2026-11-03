@@ -34,7 +34,7 @@ export default function HomePage() {
       badge: 'Vision AI',
     },
     {
-      title: '20+ Herbs Directory',
+      title: '80 Medicinal Herbs Directory',
       subtitle: 'Browse authentic botanical profiles, doshas, traditional uses & cultivation.',
       path: '/knowledge-base',
       icon: BookOpen,
@@ -141,7 +141,7 @@ export default function HomePage() {
                   </h2>
                 </div>
                 <Link to="/knowledge-base" className="mt-4 md:mt-0 text-sm font-semibold text-[#e8a045] hover:text-[#fbbf24] flex items-center gap-2">
-                  <span>View All 20+ Herbs</span>
+                  <span>View All 80 Herbs</span>
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>

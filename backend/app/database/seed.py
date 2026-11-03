@@ -14,14 +14,18 @@ async def seed_herbs():
         return
 
     async with AsyncSessionLocal() as session:
-        result = await session.execute(select(Herb).limit(1))
-        existing = result.scalars().first()
-        if existing:
-            print(f"Database already seeded with herbs.")
+        result = await session.execute(select(Herb))
+        existing_herbs = result.scalars().all()
+        if len(existing_herbs) >= 80:
+            print(f"Database already seeded with {len(existing_herbs)} herbs.")
             return
 
         with open(data_path, "r", encoding="utf-8") as f:
             herbs_data = json.load(f)
+
+        for h in existing_herbs:
+            await session.delete(h)
+        await session.commit()
 
         for herb_data in herbs_data:
             herb = Herb(
